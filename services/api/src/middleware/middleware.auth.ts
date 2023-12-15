@@ -15,16 +15,16 @@ export const authMiddleware = (handler: Handler) => {
         return res.status(401).json({ message: errorCode.unathorized });
       }
 
-      const vefifiedToken = verifyJwt<{ username: string }>(
+      const verifiedToken = verifyJwt<{ username: string }>(
         accessToken ?? "",
         "accessTokenPublicKey"
       );
 
-      if (!vefifiedToken) {
+      if (!verifiedToken) {
         return res.status(401).json({ message: errorCode.unathorized });
       }
 
-      const user = await getUserByEmail({ email: vefifiedToken.username });
+      const user = await getUserByEmail({ email: verifiedToken.username });
 
       if (!user) {
         return res.status(401).json({ message: errorCode.unathorized });
