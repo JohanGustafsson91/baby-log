@@ -1,0 +1,6 @@
+packages:
+  - "services/client"
+  - "services/api"
+  - "custom-eslint-rules"
+
+lockfileDirectory: .

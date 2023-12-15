@@ -1,0 +1,29 @@
+{
+  "name": "baby-log-api",
+  "version": "1.0.0",
+  "description": "API for baby-log application",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . && pnpm lint:circular",
+    "lint:circular": "madge --circular src/**/*",
+    "lint:fix": "eslint . --fix",
+    "seed": "env-cmd -f .env.local ts-node -P ./tsconfig.seeds.json src/database/seeds/seeds.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookies-next": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.6.5"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.5",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "env-cmd": "^10.1.0",
+    "eslint": "^8.55.0",
+    "ts-node": "^10.9.1"
+  }
+}

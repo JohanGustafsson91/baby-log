@@ -1,0 +1,17 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "next",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:eslint-plugin/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "custom-eslint-rules"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "ignoreRestSiblings": true }
+    ]
+    // "custom-eslint-rules/next-api-route-exports": "error"
+  },
+  "ignorePatterns": ["custom-eslint-rules/"]
+}

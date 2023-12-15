@@ -1,0 +1,23 @@
+{
+  "name": "baby-log-client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "pnpm lint && next build",
+    "start": "next start",
+    "lint": "next lint && pnpm lint:circular",
+    "lint:circular": "madge --circular src/**/*",
+    "lint:fix": "eslint --fix src/**/*.ts src/**/*.tsx"
+  },
+  "dependencies": {
+    "next": "14.0.3",
+    "react": "^18",
+    "react-dom": "^18",
+    "baby-log-api": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18",
+    "@types/react-dom": "^18"
+  }
+}

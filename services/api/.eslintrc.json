@@ -1,0 +1,23 @@
+{
+  "env": {
+    "es2021": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "ignorePatterns": ["dist"],
+  "plugins": ["@typescript-eslint", "custom-eslint-rules"],
+  "rules": {
+    // "indent": ["error", "spaces"],
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"],
+    "custom-eslint-rules/no-import-from-controller": "error",
+    "custom-eslint-rules/handle-errors-in-controllers": "error",
+    "custom-eslint-rules/framework-agnostic": "error"
+  }
+}
