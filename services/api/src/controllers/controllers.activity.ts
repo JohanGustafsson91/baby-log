@@ -113,9 +113,7 @@ export const deleteActivity = async (
       childId,
     });
 
-    return res
-      .status(deletedActivity ? 200 : 400)
-      .json({ deleted: deletedActivity });
+    return res.status(deletedActivity ? 200 : 400).json(deletedActivity);
   } catch (error) {
     return handleError({ res, error });
   }

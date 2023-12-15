@@ -5,9 +5,7 @@ const Login = () => {
   return (
     <main>
       <h1>Baby Log</h1>
-      <button>
-        <Link href={"/api/login"}>Login</Link>
-      </button>
+      <Link href={"/api/login"}>Login</Link>
     </main>
   );
 };

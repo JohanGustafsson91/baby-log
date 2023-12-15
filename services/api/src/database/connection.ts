@@ -15,7 +15,7 @@ export const queryDatabase = async <T = undefined>(
     const [result] = await connection.query<DbReturnType<T>>(sql, values);
     return result as ReturnType<T>;
   } finally {
-    connection.end();
+    //connection.end();
   }
 };
 
