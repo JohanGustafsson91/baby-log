@@ -32,12 +32,12 @@ export const ActivityForm = ({
   return (
     <div className={styles.modal}>
       <div className="flex-space-between">
-        <h2>{activityToUpdate ? "Uppdatera" : "Lägg till"} aktivitet</h2>
+        <h3>{activityToUpdate ? "Uppdatera" : "Lägg till"} aktivitet</h3>
         <button onClick={onClose}>Stäng</button>
       </div>
 
       <div className={styles.formGroup}>
-        <h3>Kategori</h3>
+        <h4>Kategori</h4>
         {categories.map((option) => (
           <label className={styles.label} key={option}>
             <input
@@ -53,7 +53,7 @@ export const ActivityForm = ({
       </div>
 
       <div className={styles.formGroup}>
-        <h3>Tid</h3>
+        <h4>Tid</h4>
         <TimeInput
           name="startTime"
           value={formatTime(form.startTime)}
@@ -67,7 +67,7 @@ export const ActivityForm = ({
       </div>
 
       <div className={styles.formGroup}>
-        <h3>Info</h3>
+        <h4>Info</h4>
         <input name="details" value={form.details} onChange={updateForm} />
       </div>
 
