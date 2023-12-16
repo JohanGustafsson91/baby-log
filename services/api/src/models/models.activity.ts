@@ -48,6 +48,7 @@ export const ActivityModel = {
       AND user_id = ?
       AND DATE(start_time) >= ?
       AND DATE(start_time) <= ?
+      ORDER BY start_time DESC
     `;
 
     const rows = await queryDatabase<DatabaseActivity[]>(query, [
@@ -138,7 +139,6 @@ type ActivityCategory =
   | "hygiene"
   | "health-check"
   | "diaper-change"
-  | "diaper-change-poop"
   | "bath"
   | "other";
 
