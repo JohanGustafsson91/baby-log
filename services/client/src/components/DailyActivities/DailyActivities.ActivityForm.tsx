@@ -84,13 +84,13 @@ export const ActivityForm = ({
 };
 
 const categories: ActivityDTO["category"][] = [
-  "bath",
-  "diaper-change",
   "food",
-  "health-check",
-  "hygiene",
-  "other",
+  "diaper-change",
   "sleep",
+  "hygiene",
+  "bath",
+  "health-check",
+  "other",
 ];
 
 const TimeInput = ({

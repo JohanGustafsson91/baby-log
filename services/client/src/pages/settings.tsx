@@ -3,12 +3,13 @@ import { withProtectedRoute } from "@/components/SessionProvider/withProtectedRo
 import { useSettings } from "@/components/SettingsProvider/SettingsProvider";
 
 const Settings = () => {
-  const { logout } = useSession();
+  const { logout, session } = useSession();
   const { children, selectedChild } = useSettings();
 
   return (
     <main>
-      <h3>Children</h3>
+      <h3>Hello {session.name}</h3>
+      <p>Children</p>
 
       <ul>
         {children.map((child) => (
