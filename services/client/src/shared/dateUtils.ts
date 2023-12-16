@@ -20,12 +20,14 @@ export const parseTimeString = (timeString: string, date = new Date()) => {
   const [hours, minutes] = timeString.split(":").map(Number);
 
   if (
-    isNaN(hours) ||
-    isNaN(minutes) ||
-    hours < 0 ||
-    hours > 23 ||
-    minutes < 0 ||
-    minutes > 59
+    [
+      isNaN(hours),
+      isNaN(minutes),
+      hours < 0,
+      hours > 23,
+      minutes < 0,
+      minutes > 59,
+    ].some(Boolean)
   ) {
     throw new Error("Invalid time format");
   }
