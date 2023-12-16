@@ -39,7 +39,7 @@ const Menu = () => {
   return {
     registered: (
       <div className="menu flex-space-between">
-        <Link href="/">Welcome {session.name}</Link>
+        <Link href="/today">Welcome {session.name}</Link>
         <Link href="/settings">Settings</Link>
       </div>
     ),

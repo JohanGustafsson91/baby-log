@@ -6,8 +6,23 @@
     "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
 
   --background-color: #1a2330;
-  --foreground-highlight-color: #fcfeff;
-  --foreground-color: #d1d6fd;
+  --border-color: #37474f;
+  --font-color: #ffffff;
+  --headline-color: #e0e0e0;
+  --error-color: #ff3333;
+
+  --button-background: #3498db;
+  --button-text: #ffffff;
+  --button-hover-background: #2c3e50;
+  --button-border: #2c3e50;
+  --button-focus-background: #2980b9;
+
+  --input-background: #ecf0f1;
+  --input-text: #333333;
+  --input-border: #bdc3c7;
+  --input-focus-border: #3498db;
+  --input-focus-box-shadow: 0 0 5px rgba(52, 152, 219, 0.7);
+  --input-placeholder: #999999;
 }
 
 * {
@@ -23,7 +38,7 @@ body {
 }
 
 body {
-  color: var(--foreground-color);
+  color: var(--font-color);
   background: var(--background-color);
 }
 
@@ -33,7 +48,7 @@ h3,
 h4,
 h5,
 a {
-  color: var(--foreground-highlight-color);
+  color: var(--headline-color);
 }
 
 .layout {
@@ -47,17 +62,14 @@ main {
 }
 
 .menu {
-  border-bottom: 1px solid var(--foreground-color);
+  border-bottom: 1px solid var(--border-color);
   padding: 16px;
 }
 
 .flex-space-between {
   display: flex;
   justify-content: space-between;
-}
-
-.list-item {
-  margin-bottom: 16px;
+  gap: 10px;
 }
 
 a {
@@ -66,18 +78,61 @@ a {
 
 button {
   align-self: center;
+  background-color: var(--button-background);
+  color: var(--button-text);
+  border: 1px solid var(--button-border);
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: var(--button-hover-background);
+  }
+
+  &:focus,
+  &:active {
+    background-color: var(--button-focus-background);
+  }
 }
 
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--background-color);
-  padding: 16px;
+.button-small {
+  padding: 10px;
 }
 
-.formgroup {
+input {
+  background-color: var(--input-background);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  padding: 10px;
+  margin-bottom: 10px;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+
+  &:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: var(--input-focus-box-shadow);
+  }
+
+  &::placeholder {
+    color: var(--input-placeholder);
+  }
+}
+
+.mb-8 {
+  margin-bottom: 8px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+.mb-24 {
+  margin-bottom: 24px;
+}
+
+.mb-32 {
   margin-bottom: 32px;
+}
+
+.mb-40 {
+  margin-bottom: 40px;
 }

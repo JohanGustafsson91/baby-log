@@ -11,6 +11,15 @@ const nextConfig = {
     ],
   },
   transpilePackages: ["baby-log-api"],
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: `/today`,
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

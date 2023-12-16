@@ -72,3 +72,9 @@ export const formatTime = (now = new Date()) => {
   const { hours, minutes } = extractTimeAndDate(new Date(now));
   return `${hours}:${minutes}`;
 };
+
+export const isDateInFuture = ({ currentDate }: { currentDate: Date }) => {
+  const nextDay = new Date(currentDate);
+  nextDay.setDate(currentDate.getDate() + 1);
+  return nextDay > new Date();
+};

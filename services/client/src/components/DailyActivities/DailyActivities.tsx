@@ -4,11 +4,21 @@ import { useAsync } from "@/shared/useAsync";
 import { useSettings } from "@/components/SettingsProvider/SettingsProvider";
 import { ActivityDTO } from "baby-log-api";
 import { ActivityForm } from "./DailyActivities.ActivityForm";
-import { categoryToTextMap } from "./DailyActivities.categoryToTextMap";
-import { formatDate, formatTime, isValidDate } from "@/shared/dateUtils";
+import { categoriesDisplayTextMap } from "./DailyActivities.categoriesDisplayTextMap";
+import {
+  formatDate,
+  formatTime,
+  isDateInFuture,
+  isValidDate,
+} from "@/shared/dateUtils";
+import styles from "./DailyActivities.module.css";
 
 export const DailyActivities = () => {
   const router = useRouter();
+  const { query } = router;
+  const [currentDate] = ensureArray(query.day);
+  const [createOrUpdateActivity] = ensureArray(query.mode);
+
   const { selectedChild } = useSettings();
   const {
     data: activities = [],
@@ -17,39 +27,36 @@ export const DailyActivities = () => {
     updateData,
   } = useAsync<ActivityDTO[]>();
 
-  const [date] = ensureArray(router.query.day);
-
   useEffect(
-    function initDay() {
-      if (!isValidDate(date)) {
-        router.push(`/${formatDate()}`, undefined, {
+    function checkValidDay() {
+      if (!isValidDate(currentDate)) {
+        router.push(`/${formatDate(new Date())}`, undefined, {
           shallow: true,
         });
       }
     },
-    [router, date]
+    [router, currentDate]
   );
 
   useEffect(
     function fetchActivitiesForDay() {
-      if (!isValidDate(date) || !selectedChild?.id) {
+      if (!isValidDate(currentDate) || !selectedChild?.id) {
         return;
       }
 
       execute(async function fetchActivities() {
         const response = await fetch(
-          `/api/activities/${selectedChild?.id}/between/${date}/${date}`
+          `/api/activities/${selectedChild?.id}/between/${currentDate}/${currentDate}`
         );
         const json: ActivityDTO[] = await response.json();
         return json;
       });
     },
-    [date, execute, selectedChild?.id]
+    [currentDate, execute, selectedChild?.id]
   );
 
-  function changeDay(currentDate: Date, days: number) {
+  function navigateToDay(currentDate: Date, days: number) {
     const newDate = new Date(currentDate);
-
     newDate.setDate(currentDate.getDate() + days);
 
     return router.push(`/${formatDate(newDate)}`, undefined, {
@@ -57,9 +64,9 @@ export const DailyActivities = () => {
     });
   }
 
-  function handleAddOrUpdateActivity(activityId?: ActivityDTO["id"]) {
+  function showCreateOrUpdateActivityForm(activityId?: ActivityDTO["id"]) {
     return router.push(
-      { query: { ...router.query, mode: "addOrUpdate", activityId } },
+      { query: { ...router.query, mode: "createOrUpdate", activityId } },
       undefined,
       {
         shallow: true,
@@ -67,7 +74,7 @@ export const DailyActivities = () => {
     );
   }
 
-  function handleOnClose() {
+  function closeShowCreateOrUpdateActivityForm() {
     return router.push(
       { pathname: router.pathname, query: { day: router.query.day } },
       undefined,
@@ -78,89 +85,85 @@ export const DailyActivities = () => {
   }
 
   async function createNewActivity(activity: ActivityDTO) {
-    try {
-      const response = await fetch(`/api/activities/${selectedChild?.id}`, {
-        method: "POST",
-        body: JSON.stringify(activity),
-      });
+    const response = await fetch(`/api/activities/${selectedChild?.id}`, {
+      method: "POST",
+      body: JSON.stringify(activity),
+    });
 
-      if (!response.ok) {
-        throw new Error("Could not create activity");
-      }
-
-      const data: ActivityDTO = await response.json();
-      updateData([...activities, data]);
-    } catch (error) {
-      console.log(error);
+    if (!response.ok) {
+      throw new Error("Could not create activity");
     }
+
+    const data: ActivityDTO = await response.json();
+    updateData([...activities, data]);
   }
 
   async function updateActivity(activity: ActivityDTO) {
-    try {
-      const response = await fetch(
-        `/api/activities/${selectedChild?.id}/${activity.id}`,
-        {
-          method: "PATCH",
-          body: JSON.stringify(activity),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Could not update activity");
+    const response = await fetch(
+      `/api/activities/${selectedChild?.id}/${activity.id}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(activity),
       }
+    );
 
-      const data: ActivityDTO = await response.json();
-      updateData(activities.map((a) => (a.id === data.id ? data : a)));
-    } catch (error) {
-      console.log(error);
+    if (!response.ok) {
+      throw new Error("Could not update activity");
     }
+
+    const data: ActivityDTO = await response.json();
+    updateData(activities.map((a) => (a.id === data.id ? data : a)));
   }
 
   async function deleteActivity(activityId: ActivityDTO["id"]) {
-    try {
-      const response = await fetch(
-        `/api/activities/${selectedChild?.id}/${activityId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Could not delete activity");
+    const response = await fetch(
+      `/api/activities/${selectedChild?.id}/${activityId}`,
+      {
+        method: "DELETE",
       }
+    );
 
-      updateData(activities.filter((a) => a.id !== activityId));
-    } catch (error) {
-      console.log(error);
+    if (!response.ok) {
+      throw new Error("Could not delete activity");
     }
+
+    updateData(activities.filter((a) => a.id !== activityId));
   }
 
-  const currentDate = new Date(date);
-  const nextDay = new Date(currentDate);
-  nextDay.setDate(currentDate.getDate() + 1);
-  const isNextDayInFuture = nextDay > new Date();
-
-  const [addOrUpdateActivity] = ensureArray(router.query.mode);
+  if (!isValidDate(currentDate)) {
+    return null;
+  }
 
   return (
     <main>
-      <div className="flex-space-between">
-        <button onClick={() => changeDay(new Date(date), -1)}>Back</button>
-        <span>{date}</span>
-        {!isNextDayInFuture ? (
-          <button onClick={() => changeDay(new Date(date), 1)}>Next</button>
-        ) : null}
+      <div className="flex-space-between mb-16">
+        <button
+          className="button-small"
+          onClick={() => navigateToDay(new Date(currentDate), -1)}
+        >
+          {"<"}
+        </button>
+        <span>{currentDate}</span>
+        <button
+          className="button-small"
+          disabled={isDateInFuture({ currentDate: new Date(currentDate) })}
+          onClick={() => navigateToDay(new Date(currentDate), 1)}
+        >
+          {">"}
+        </button>
       </div>
 
       <div className="flex-space-between">
         <h3>Händelser</h3>
-        <button onClick={() => handleAddOrUpdateActivity()}>Lägg till</button>
+        <button onClick={() => showCreateOrUpdateActivityForm()}>
+          Lägg till
+        </button>
       </div>
 
       <div>
         {
           {
-            idle: null,
+            idle: <p>Hämtar händelser...</p>,
             pending: <p>Hämtar händelser...</p>,
             success: activities.length ? (
               [...activities]
@@ -172,12 +175,23 @@ export const DailyActivities = () => {
                 .map(({ id, startTime, category, details }) => (
                   <div
                     key={id}
-                    className="list-item"
-                    onClick={() => handleAddOrUpdateActivity(id)}
+                    onClick={() => showCreateOrUpdateActivityForm(id)}
+                    className={styles.activityItem}
                   >
-                    <div>{formatTime(startTime)}</div>
-                    {categoryToTextMap[category]}
-                    {details ? ` - ${details}` : ""}
+                    <div className={styles.activityInfo}>
+                      <div className={styles.activityTime}>
+                        {formatTime(startTime)}
+                      </div>
+                      <div className={styles.activityCategory}>
+                        <span>{categoriesDisplayTextMap[category]}</span>
+                        {details && " - "}
+                        {details ? (
+                          <span className={styles.activityDetails}>
+                            {details}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
                 ))
             ) : (
@@ -188,10 +202,10 @@ export const DailyActivities = () => {
         }
       </div>
 
-      {addOrUpdateActivity && (
+      {createOrUpdateActivity && (
         <ActivityForm
-          date={new Date(date)}
-          onClose={handleOnClose}
+          date={new Date(currentDate)}
+          onClose={closeShowCreateOrUpdateActivityForm}
           activityToUpdate={activities.find(
             (activity) =>
               activity.id.toString() === ensureArray(router.query.activityId)[0]
@@ -200,11 +214,11 @@ export const DailyActivities = () => {
             newActivity
               ? await createNewActivity(activity)
               : await updateActivity(activity);
-            handleOnClose();
+            closeShowCreateOrUpdateActivityForm();
           }}
           onDelete={async (activityId) => {
             await deleteActivity(activityId);
-            handleOnClose();
+            closeShowCreateOrUpdateActivityForm();
           }}
         />
       )}
