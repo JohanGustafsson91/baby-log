@@ -57,6 +57,7 @@ export const ActivityForm = ({
         <TimeInput
           name="startTime"
           value={formatTime(form.startTime)}
+          isValidInput={(value) => validInputRegex().test(value)}
           onValidTimeInput={(timeString) =>
             setForm((prev) => ({
               ...prev,
@@ -64,6 +65,21 @@ export const ActivityForm = ({
             }))
           }
         />
+        {categoriesWithEndTime.includes(form.category) ? (
+          <TimeInput
+            name="endTime"
+            value={form.endTime ? formatTime(form.endTime) : ""}
+            isValidInput={(value) =>
+              validInputRegex().test(value) || value === ""
+            }
+            onValidTimeInput={(timeString) =>
+              setForm((prev) => ({
+                ...prev,
+                endTime: timeString ? parseTimeString(timeString, date) : null,
+              }))
+            }
+          />
+        ) : null}
       </div>
 
       <div className={styles.formGroup}>
@@ -93,24 +109,29 @@ const categories: ActivityDTO["category"][] = [
   "other",
 ];
 
+const categoriesWithEndTime: ActivityDTO["category"][] = ["sleep"];
+
+const validInputRegex = () => /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+
 const TimeInput = ({
   name,
   value,
+  isValidInput,
   onValidTimeInput,
 }: {
   name: string;
   value: string;
+  isValidInput: (inputValue: string) => boolean;
   onValidTimeInput: (arg: string) => void;
 }) => {
   const [time, setTime] = useState(value);
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const validInputRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
     const inputValue = event.target.value;
 
     setTime(inputValue);
 
-    if (validInputRegex.test(inputValue)) {
+    if (isValidInput(inputValue)) {
       onValidTimeInput(inputValue);
     }
   };

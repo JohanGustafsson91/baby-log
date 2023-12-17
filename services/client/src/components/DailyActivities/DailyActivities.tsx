@@ -8,6 +8,7 @@ import { categoriesDisplayTextMap } from "./DailyActivities.categoriesDisplayTex
 import {
   formatDate,
   formatTime,
+  getElapsedTime,
   isDateInFuture,
   isValidDate,
 } from "@/shared/dateUtils";
@@ -167,21 +168,32 @@ export const DailyActivities = () => {
             pending: <p>Hämtar händelser...</p>,
             success: activities.length ? (
               [...activities]
+                .map((activity) => ({
+                  ...activity,
+                  startTime: new Date(activity.startTime),
+                  endTime: activity.endTime
+                    ? new Date(activity.endTime)
+                    : activity.endTime,
+                }))
                 .sort(
                   (a, b) =>
                     new Date(b.startTime).getTime() -
                     new Date(a.startTime).getTime()
                 )
-                .map(({ id, startTime, category, details }) => (
+                .map(({ id, startTime, endTime, category, details }) => (
                   <div
                     key={id}
                     onClick={() => showCreateOrUpdateActivityForm(id)}
                     className={styles.activityItem}
                   >
                     <div className={styles.activityInfo}>
-                      <div className={styles.activityTime}>
+                      <span className={styles.activityTime}>
                         {formatTime(startTime)}
-                      </div>
+                        {endTime ? ` - ${formatTime(endTime)}` : ""}
+                      </span>
+                      <span className={styles.activityElapsedTime}>
+                        {getElapsedTime(startTime)}
+                      </span>
                       <div className={styles.activityCategory}>
                         <span>{categoriesDisplayTextMap[category]}</span>
                         {details && " - "}
