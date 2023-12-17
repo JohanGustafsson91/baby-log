@@ -144,7 +144,7 @@ type ActivityCategory =
 
 export interface ActivityDTO {
   startTime: Date;
-  endTime?: Date;
+  endTime?: Date | null;
   category: ActivityCategory;
   details?: string;
   id: number;

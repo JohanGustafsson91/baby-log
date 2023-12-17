@@ -172,7 +172,7 @@ export const DailyActivities = () => {
                     new Date(b.startTime).getTime() -
                     new Date(a.startTime).getTime()
                 )
-                .map(({ id, startTime, category, details }) => (
+                .map(({ id, startTime, endTime, category, details }) => (
                   <div
                     key={id}
                     onClick={() => showCreateOrUpdateActivityForm(id)}
@@ -181,6 +181,7 @@ export const DailyActivities = () => {
                     <div className={styles.activityInfo}>
                       <div className={styles.activityTime}>
                         {formatTime(startTime)}
+                        {endTime ? ` - ${formatTime(endTime)}` : ""}
                       </div>
                       <div className={styles.activityCategory}>
                         <span>{categoriesDisplayTextMap[category]}</span>

@@ -88,7 +88,7 @@ export const updateActivity = async (
       activity: {
         category,
         startTime: startTime ? new Date(startTime) : undefined,
-        endTime: endTime ? new Date(endTime) : undefined,
+        endTime: endTime ? new Date(endTime) : null,
         details,
       },
     });

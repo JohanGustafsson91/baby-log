@@ -82,7 +82,10 @@ export const updateActivityForChild = async ({
     id: existingActivity.id,
     category: activity.category || existingActivity.category,
     startTime: activity.startTime || existingActivity.startTime,
-    endTime: activity.endTime ?? existingActivity.endTime ?? undefined,
+    endTime:
+      activity.endTime || activity.endTime === null
+        ? activity.endTime
+        : existingActivity.endTime,
     details: activity.details ?? existingActivity.details ?? undefined,
   };
 
