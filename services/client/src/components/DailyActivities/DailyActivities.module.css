@@ -41,6 +41,12 @@
   color: #ecf0f1;
 }
 
+.activityElapsedTime {
+  color: #ecf0f1;
+  float: right;
+  font-size: 12px;
+}
+
 .activityCategory {
   color: #3498db;
 }

@@ -80,3 +80,33 @@ export const isDateInFuture = ({ currentDate }: { currentDate: Date }) => {
   nextDay.setDate(currentDate.getDate() + 1);
   return nextDay > new Date();
 };
+
+export const getElapsedTime = (date: Date) => {
+  const now = new Date();
+  const elapsedMilliseconds = now.getTime() - date.getTime();
+  const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+  const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+  const elapsedDays = Math.floor(elapsedHours / 24);
+  const elapsedWeeks = Math.floor(elapsedDays / 7);
+  const elapsedMonths = Math.floor(elapsedDays / 30);
+  const elapsedYears = Math.floor(elapsedDays / 365);
+
+  if (elapsedSeconds < 60) {
+    return `${elapsedSeconds} sekund${elapsedSeconds === 1 ? "" : "er"} sen`;
+  } else if (elapsedMinutes < 60) {
+    return `${elapsedMinutes} minut${elapsedMinutes === 1 ? "" : "er"} sen`;
+  } else if (elapsedHours < 24) {
+    return `${elapsedHours} timm${elapsedHours === 1 ? "e" : "ar"} och ${
+      elapsedMinutes % 60
+    } minut${elapsedMinutes % 60 === 1 ? "" : "er"} sen`;
+  } else if (elapsedDays < 7) {
+    return `${elapsedDays} dag${elapsedDays === 1 ? "" : "ar"} sen`;
+  } else if (elapsedWeeks < 4) {
+    return `${elapsedWeeks} veck${elapsedWeeks === 1 ? "a" : "or"} sen`;
+  } else if (elapsedMonths < 12) {
+    return `${elapsedMonths} månad${elapsedMonths === 1 ? "" : "er"} sen`;
+  } else {
+    return `${elapsedYears} år sen`;
+  }
+};
