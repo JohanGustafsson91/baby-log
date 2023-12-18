@@ -7,12 +7,12 @@
 
 .header .main {
   height: 84px;
-  font-size: 20px;
   align-items: center;
   display: flex;
 }
 
 .header h1 {
+  font-size: 20px;
   padding: 0;
   margin: 0;
   line-height: 0;
