@@ -5,6 +5,7 @@
   right: 0;
   bottom: 0;
   background-color: var(--background-color);
+  overflow: scroll;
 }
 
 .formGroup {
