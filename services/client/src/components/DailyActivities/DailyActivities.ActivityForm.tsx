@@ -7,6 +7,7 @@ import {
   setTimeFromAnotherDate,
 } from "@/shared/dateUtils";
 import styles from "./DailyActivities.module.css";
+import { Header } from "../Header/Header";
 
 export const ActivityForm = ({
   date,
@@ -31,69 +32,75 @@ export const ActivityForm = ({
 
   return (
     <div className={styles.modal}>
-      <div className="flex-space-between">
-        <h3>{activityToUpdate ? "Uppdatera" : "Lägg till"} aktivitet</h3>
-        <button onClick={onClose}>Stäng</button>
-      </div>
+      <Header
+        title={`${activityToUpdate ? "Uppdatera" : "Lägg till"} aktivitet`}
+        icons={<button onClick={onClose}>Stäng</button>}
+      />
 
-      <div className={styles.formGroup}>
-        <h4>Kategori</h4>
-        {categories.map((option) => (
-          <label className={styles.label} key={option}>
-            <input
-              type="radio"
-              name="category"
-              value={option}
-              checked={form.category === option}
-              onChange={updateForm}
-            />
-            {categoriesDisplayTextMap[option]}
-          </label>
-        ))}
-      </div>
+      <div className="content">
+        <div className={styles.formGroup}>
+          <h4>Kategori</h4>
+          {categories.map((option) => (
+            <label className={styles.label} key={option}>
+              <input
+                type="radio"
+                name="category"
+                value={option}
+                checked={form.category === option}
+                onChange={updateForm}
+              />
+              {categoriesDisplayTextMap[option]}
+            </label>
+          ))}
+        </div>
 
-      <div className={styles.formGroup}>
-        <h4>Tid</h4>
-        <TimeInput
-          name="startTime"
-          value={formatTime(form.startTime)}
-          isValidInput={(value) => validInputRegex().test(value)}
-          onValidTimeInput={(timeString) =>
-            setForm((prev) => ({
-              ...prev,
-              startTime: parseTimeString(timeString, date),
-            }))
-          }
-        />
-        {categoriesWithEndTime.includes(form.category) ? (
+        <div className={styles.formGroup}>
+          <h4>Tid</h4>
           <TimeInput
-            name="endTime"
-            value={form.endTime ? formatTime(form.endTime) : ""}
-            isValidInput={(value) =>
-              validInputRegex().test(value) || value === ""
-            }
+            name="startTime"
+            value={formatTime(form.startTime)}
+            isValidInput={(value) => validInputRegex().test(value)}
             onValidTimeInput={(timeString) =>
               setForm((prev) => ({
                 ...prev,
-                endTime: timeString ? parseTimeString(timeString, date) : null,
+                startTime: parseTimeString(timeString, date),
               }))
             }
           />
-        ) : null}
-      </div>
+          {categoriesWithEndTime.includes(form.category) ? (
+            <TimeInput
+              name="endTime"
+              value={form.endTime ? formatTime(form.endTime) : ""}
+              isValidInput={(value) =>
+                validInputRegex().test(value) || value === ""
+              }
+              onValidTimeInput={(timeString) =>
+                setForm((prev) => ({
+                  ...prev,
+                  endTime: timeString
+                    ? parseTimeString(timeString, date)
+                    : null,
+                }))
+              }
+            />
+          ) : null}
+        </div>
 
-      <div className={styles.formGroup}>
-        <h4>Info</h4>
-        <input name="details" value={form.details} onChange={updateForm} />
-      </div>
+        <div className={styles.formGroup}>
+          <h4>Info</h4>
+          <input name="details" value={form.details} onChange={updateForm} />
+        </div>
 
-      <div className={`flex-space-between ${styles.formGroup}`}>
-        <button onClick={() => onSubmit(form, !Boolean(activityToUpdate))}>
-          {activityToUpdate ? "Uppdatera" : "Lägg till"}
-        </button>
-        {activityToUpdate ? (
-          <button onClick={() => onDelete(activityToUpdate.id)}>Ta bort</button>
-        ) : null}
+        <div className={`flex-space-between ${styles.formGroup}`}>
+          <button onClick={() => onSubmit(form, !Boolean(activityToUpdate))}>
+            {activityToUpdate ? "Uppdatera" : "Lägg till"}
+          </button>
+          {activityToUpdate ? (
+            <button onClick={() => onDelete(activityToUpdate.id)}>
+              Ta bort
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -138,7 +145,7 @@ const TimeInput = ({
 
   return (
     <input
-      type="tel"
+      type="text"
       name={name}
       value={time}
       placeholder="HH:MM"
