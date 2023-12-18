@@ -138,7 +138,7 @@ const TimeInput = ({
 
   return (
     <input
-      type="text"
+      type="tel"
       name={name}
       value={time}
       placeholder="HH:MM"

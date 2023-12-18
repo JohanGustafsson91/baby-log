@@ -36,7 +36,7 @@ export const SettingsProvider = (props: PropsWithChildren) => {
         selectedChild: data[0],
       }}
     >
-      {status !== "pending" ? props.children : null}
+      {status === "success" ? props.children : null}
     </SettingsContext.Provider>
   );
 };

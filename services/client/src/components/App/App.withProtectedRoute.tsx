@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useSession } from "./SessionProvider";
+import { useSession } from "./App.SessionProvider";
 
 export const withProtectedRoute = <P extends object>(
   WrappedComponent: NextPage<P>
@@ -30,7 +30,11 @@ export const withProtectedRoute = <P extends object>(
       session.type === "anonymous" && currentPage === "/login",
     ].some(Boolean);
 
-    return shouldRender ? <WrappedComponent {...props} /> : null;
+    return shouldRender ? (
+      <WrappedComponent {...props} />
+    ) : (
+      <div className="content" />
+    );
   };
 
   return WithProtectedRoute;

@@ -97,7 +97,7 @@ export const getElapsedTime = (date: Date) => {
   } else if (elapsedMinutes < 60) {
     return `${elapsedMinutes} min sen`;
   } else if (elapsedHours < 24) {
-    return `${elapsedHours} tim & ${elapsedMinutes % 60} min sen`;
+    return `${elapsedHours} tim. ${elapsedMinutes % 60} min sen`;
   } else if (elapsedDays < 7) {
     return `${elapsedDays} dag${elapsedDays === 1 ? "" : "ar"} sen`;
   } else if (elapsedWeeks < 4) {
