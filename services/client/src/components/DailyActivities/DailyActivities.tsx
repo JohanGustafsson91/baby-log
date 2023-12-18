@@ -136,7 +136,7 @@ export const DailyActivities = () => {
   }
 
   return (
-    <main>
+    <divs>
       <div className="flex-space-between mb-16">
         <button
           className="button-small"
@@ -234,7 +234,7 @@ export const DailyActivities = () => {
           }}
         />
       )}
-    </main>
+    </divs>
   );
 };
 
