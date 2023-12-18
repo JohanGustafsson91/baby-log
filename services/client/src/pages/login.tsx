@@ -1,11 +1,11 @@
-import { withProtectedRoute } from "@/components/SessionProvider/withProtectedRoute";
+import { withProtectedRoute } from "@/components/App/App.withProtectedRoute";
 
 const Login = () => {
   return (
-    <main>
+    <div className="content">
       <h1>Baby Log</h1>
       <a href={"/api/login"}>Login</a>
-    </main>
+    </div>
   );
 };
 

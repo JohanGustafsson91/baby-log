@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useAsync } from "@/shared/useAsync";
-import { useSettings } from "@/components/SettingsProvider/SettingsProvider";
 import { ActivityDTO } from "baby-log-api";
 import { ActivityForm } from "./DailyActivities.ActivityForm";
 import { categoriesDisplayTextMap } from "./DailyActivities.categoriesDisplayTextMap";
@@ -13,6 +12,9 @@ import {
   isValidDate,
 } from "@/shared/dateUtils";
 import styles from "./DailyActivities.module.css";
+import { Header } from "../Header/Header";
+import { IconButton } from "../Button/Button.IconButton";
+import { useSettings } from "../App/App.SettingsProvider";
 
 export const DailyActivities = () => {
   const router = useRouter();
@@ -136,105 +138,111 @@ export const DailyActivities = () => {
   }
 
   return (
-    <div>
-      <div className="flex-space-between mb-16">
-        <button
-          className="button-small"
-          onClick={() => navigateToDay(new Date(currentDate), -1)}
-        >
-          {"<"}
-        </button>
-        <span>{currentDate}</span>
-        <button
-          className="button-small"
-          disabled={isDateInFuture({ currentDate: new Date(currentDate) })}
-          onClick={() => navigateToDay(new Date(currentDate), 1)}
-        >
-          {">"}
-        </button>
-      </div>
+    <>
+      <Header title={`${selectedChild?.name}s dag`}>
+        <IconButton
+          icon="add"
+          onClick={() => showCreateOrUpdateActivityForm()}
+        />
+      </Header>
+      <div className="content">
+        <div className="flex-space-between mb-16">
+          <button
+            className="button-small"
+            onClick={() => navigateToDay(new Date(currentDate), -1)}
+          >
+            {"<"}
+          </button>
+          <span>{currentDate}</span>
+          <button
+            className="button-small"
+            disabled={isDateInFuture({ currentDate: new Date(currentDate) })}
+            onClick={() => navigateToDay(new Date(currentDate), 1)}
+          >
+            {">"}
+          </button>
+        </div>
 
-      <div className="flex-space-between">
-        <h3>Händelser</h3>
-        <button onClick={() => showCreateOrUpdateActivityForm()}>
-          Lägg till
-        </button>
-      </div>
+        <div className="flex-space-between">
+          <h3>Händelser</h3>
+        </div>
 
-      <div>
-        {
+        <div>
           {
-            idle: <p>Hämtar händelser...</p>,
-            pending: <p>Hämtar händelser...</p>,
-            success: activities.length ? (
-              [...activities]
-                .map((activity) => ({
-                  ...activity,
-                  startTime: new Date(activity.startTime),
-                  endTime: activity.endTime
-                    ? new Date(activity.endTime)
-                    : activity.endTime,
-                }))
-                .sort(
-                  (a, b) =>
-                    new Date(b.startTime).getTime() -
-                    new Date(a.startTime).getTime()
-                )
-                .map(({ id, startTime, endTime, category, details }) => (
-                  <div
-                    key={id}
-                    onClick={() => showCreateOrUpdateActivityForm(id)}
-                    className={styles.activityItem}
-                  >
-                    <div className={styles.activityInfo}>
-                      <span className={styles.activityTime}>
-                        {formatTime(startTime)}
-                        {endTime ? ` - ${formatTime(endTime)}` : ""}
-                      </span>
-                      <span className={styles.activityElapsedTime}>
-                        {getElapsedTime(startTime)}
-                      </span>
-                      <div className={styles.activityCategory}>
-                        <span>{categoriesDisplayTextMap[category]}</span>
-                        {details && " - "}
-                        {details ? (
-                          <span className={styles.activityDetails}>
-                            {details}
-                          </span>
-                        ) : null}
+            {
+              idle: <p>Hämtar händelser...</p>,
+              pending: <p>Hämtar händelser...</p>,
+              success: activities.length ? (
+                [...activities]
+                  .map((activity) => ({
+                    ...activity,
+                    startTime: new Date(activity.startTime),
+                    endTime: activity.endTime
+                      ? new Date(activity.endTime)
+                      : activity.endTime,
+                  }))
+                  .sort(
+                    (a, b) =>
+                      new Date(b.startTime).getTime() -
+                      new Date(a.startTime).getTime()
+                  )
+                  .map(({ id, startTime, endTime, category, details }) => (
+                    <div
+                      key={id}
+                      onClick={() => showCreateOrUpdateActivityForm(id)}
+                      className={styles.activityItem}
+                    >
+                      <div className={styles.activityInfo}>
+                        <span className={styles.activityTime}>
+                          {formatTime(startTime)}
+                          {endTime ? ` - ${formatTime(endTime)}` : ""}
+                        </span>
+                        <span className={styles.activityElapsedTime}>
+                          {getElapsedTime(startTime)}
+                        </span>
+                        <div className={styles.activityCategory}>
+                          <span>{categoriesDisplayTextMap[category]}</span>
+                          {details && " - "}
+                          {details ? (
+                            <span className={styles.activityDetails}>
+                              {details}
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
-            ) : (
-              <p>Inga registrerade händelser</p>
-            ),
-            error: <p>Kunde inte hämta händelser.</p>,
-          }[status]
-        }
-      </div>
+                  ))
+              ) : (
+                <p>Inga registrerade händelser</p>
+              ),
+              error: <p>Kunde inte hämta händelser.</p>,
+            }[status]
+          }
+        </div>
 
-      {createOrUpdateActivity && (
-        <ActivityForm
-          date={new Date(currentDate)}
-          onClose={closeShowCreateOrUpdateActivityForm}
-          activityToUpdate={activities.find(
-            (activity) =>
-              activity.id.toString() === ensureArray(router.query.activityId)[0]
-          )}
-          onSubmit={async (activity, newActivity) => {
-            newActivity
-              ? await createNewActivity(activity)
-              : await updateActivity(activity);
-            closeShowCreateOrUpdateActivityForm();
-          }}
-          onDelete={async (activityId) => {
-            await deleteActivity(activityId);
-            closeShowCreateOrUpdateActivityForm();
-          }}
-        />
-      )}
-    </div>
+        {createOrUpdateActivity && (
+          <ActivityForm
+            date={new Date(currentDate)}
+            onClose={closeShowCreateOrUpdateActivityForm}
+            activityToUpdate={activities.find(
+              (activity) =>
+                activity.id.toString() ===
+                ensureArray(router.query.activityId)[0]
+            )}
+            onSubmit={async (activity, newActivity) => {
+              newActivity
+                ? await createNewActivity(activity)
+                : await updateActivity(activity);
+              closeShowCreateOrUpdateActivityForm();
+            }}
+            onDelete={async (activityId) => {
+              await deleteActivity(activityId);
+              closeShowCreateOrUpdateActivityForm();
+            }}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

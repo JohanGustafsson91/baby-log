@@ -1,0 +1,36 @@
+.layout {
+  margin: 0 auto;
+  max-width: 960px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.tabBar {
+  height: 56px;
+  border-top: 1px solid var(--border-color);
+  justify-content: flex-end;
+  display: flex;
+  font-size: 14px;
+}
+
+.tabBarItem {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabBarItem:hover {
+  background-color: var(--button-hover-background);
+  cursor: pointer;
+}
+
+.tabBarItemActive {
+  font-weight: bold;
+}
+
+.tabBarItem:first-child {
+  border-right: 1px solid var(--border-color);
+}
