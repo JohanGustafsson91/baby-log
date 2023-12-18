@@ -11,11 +11,15 @@ const Settings = () => {
     <>
       <Header title="Inställningar" />
       <div className="content">
-        <h3>{session.name}</h3>
+        <div className="mb-32">
+          <h3>Konto</h3>
+          <p>{session.name}</p>
+          <p>{session.email}</p>
+        </div>
 
-        <h1>Barn</h1>
+        <h3>Barn</h3>
 
-        <ul>
+        <ul className="mb-32">
           {children.map((child) => (
             <li
               key={child.id}

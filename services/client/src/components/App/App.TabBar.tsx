@@ -10,8 +10,6 @@ export const TabBar = () => {
     router.push(path);
   }
 
-  console.log(router.pathname);
-
   return session.type === "registered" ? (
     <footer className={styles.tabBar}>
       {routes.map(({ text, path, pathname }) => (

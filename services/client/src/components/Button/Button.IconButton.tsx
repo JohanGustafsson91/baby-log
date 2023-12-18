@@ -1,10 +1,5 @@
 import React, { FC, MouseEvent } from "react";
-import styles from "./Button.module.css"; // Import your CSS file for styling
-
-interface Props {
-  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
-  icon: "add";
-}
+import styles from "./Button.module.css";
 
 export const IconButton: FC<Props> = ({ onClick, icon }) => {
   return (
@@ -13,6 +8,11 @@ export const IconButton: FC<Props> = ({ onClick, icon }) => {
     </button>
   );
 };
+
+interface Props {
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
+  icon: "add";
+}
 
 const AddIcon = () => (
   <svg

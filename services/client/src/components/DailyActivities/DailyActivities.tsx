@@ -139,13 +139,15 @@ export const DailyActivities = () => {
 
   return (
     <>
-      <Header title={`${selectedChild?.name}s dag`}>
-        <IconButton
-          icon="add"
-          onClick={() => showCreateOrUpdateActivityForm()}
-        />
-      </Header>
-      <div className="content">
+      <Header
+        title={`${selectedChild?.name}s dag`}
+        icons={
+          <IconButton
+            icon="add"
+            onClick={() => showCreateOrUpdateActivityForm()}
+          />
+        }
+      >
         <div className="flex-space-between mb-16">
           <button
             className="button-small"
@@ -162,7 +164,8 @@ export const DailyActivities = () => {
             {">"}
           </button>
         </div>
-
+      </Header>
+      <div className="content">
         <div className="flex-space-between">
           <h3>Händelser</h3>
         </div>
@@ -193,10 +196,10 @@ export const DailyActivities = () => {
                       className={styles.activityItem}
                     >
                       <div className={styles.activityInfo}>
-                        <span className={styles.activityTime}>
+                        <p className={styles.activityTime}>
                           {formatTime(startTime)}
                           {endTime ? ` - ${formatTime(endTime)}` : ""}
-                        </span>
+                        </p>
                         <span className={styles.activityElapsedTime}>
                           {getElapsedTime(startTime)}
                         </span>

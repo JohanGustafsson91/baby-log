@@ -1,15 +1,23 @@
 import { PropsWithChildren } from "react";
 import styles from "./Header.module.css";
 
-export const Header = ({ title, children }: PropsWithChildren<Props>) => {
+export const Header = ({
+  title,
+  children,
+  icons,
+}: PropsWithChildren<Props>) => {
   return (
     <header className={styles.header}>
-      <h1>{title}</h1>
-      {children}
+      <div className={styles.main}>
+        <h1>{title}</h1>
+        {icons}
+      </div>
+      <div>{children}</div>
     </header>
   );
 };
 
 interface Props {
   title: string;
+  icons?: React.ReactElement;
 }

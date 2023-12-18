@@ -40,6 +40,9 @@
 .activityTime {
   font-weight: bold;
   color: #ecf0f1;
+  margin-bottom: 8px;
+  margin-top: 0;
+  display: inline-block;
 }
 
 .activityElapsedTime {
