@@ -93,13 +93,11 @@ export const getElapsedTime = (date: Date) => {
   const elapsedYears = Math.floor(elapsedDays / 365);
 
   if (elapsedSeconds < 60) {
-    return `${elapsedSeconds} sekund${elapsedSeconds === 1 ? "" : "er"} sen`;
+    return `${elapsedSeconds} sek sen`;
   } else if (elapsedMinutes < 60) {
-    return `${elapsedMinutes} minut${elapsedMinutes === 1 ? "" : "er"} sen`;
+    return `${elapsedMinutes} min sen`;
   } else if (elapsedHours < 24) {
-    return `${elapsedHours} timm${elapsedHours === 1 ? "e" : "ar"} och ${
-      elapsedMinutes % 60
-    } minut${elapsedMinutes % 60 === 1 ? "" : "er"} sen`;
+    return `${elapsedHours} tim & ${elapsedMinutes % 60} min sen`;
   } else if (elapsedDays < 7) {
     return `${elapsedDays} dag${elapsedDays === 1 ? "" : "ar"} sen`;
   } else if (elapsedWeeks < 4) {
