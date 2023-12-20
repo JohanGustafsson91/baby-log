@@ -139,6 +139,7 @@ type ActivityCategory =
   | "hygiene"
   | "health-check"
   | "diaper-change"
+  | "diaper-change-dirty"
   | "bath"
   | "other";
 

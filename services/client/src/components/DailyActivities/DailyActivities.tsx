@@ -3,24 +3,17 @@ import { useEffect } from "react";
 import { useAsync } from "@/shared/useAsync";
 import { ActivityDTO } from "baby-log-api";
 import { ActivityForm } from "./DailyActivities.ActivityForm";
-import { categoriesDisplayTextMap } from "./DailyActivities.categoriesDisplayTextMap";
-import {
-  formatDate,
-  formatTime,
-  getElapsedTime,
-  isDateInFuture,
-  isValidDate,
-} from "@/shared/dateUtils";
-import styles from "./DailyActivities.module.css";
+import { formatDate, isDateInFuture, isValidDate } from "@/shared/dateUtils";
 import { Header } from "../Header/Header";
 import { IconButton } from "../Button/Button.IconButton";
 import { useSettings } from "../App/App.SettingsProvider";
+import { ActivityItem } from "./DailyActivities.ActivityItem";
 
 export const DailyActivities = () => {
   const router = useRouter();
   const { query } = router;
   const [currentDate] = ensureArray(query.day);
-  const [createOrUpdateActivity] = ensureArray(query.mode);
+  const [createActivityFormVisible] = ensureArray(query.mode);
 
   const { selectedChild } = useSettings();
   const {
@@ -67,9 +60,9 @@ export const DailyActivities = () => {
     });
   }
 
-  function showCreateOrUpdateActivityForm(activityId?: ActivityDTO["id"]) {
+  function showCreateActivityForm() {
     return router.push(
-      { query: { ...router.query, mode: "createOrUpdate", activityId } },
+      { query: { ...router.query, mode: "create" } },
       undefined,
       {
         shallow: true,
@@ -77,7 +70,7 @@ export const DailyActivities = () => {
     );
   }
 
-  function closeShowCreateOrUpdateActivityForm() {
+  function closeCreateActivityForm() {
     return router.push(
       { pathname: router.pathname, query: { day: router.query.day } },
       undefined,
@@ -87,50 +80,46 @@ export const DailyActivities = () => {
     );
   }
 
-  async function createNewActivity(activity: ActivityDTO) {
-    const response = await fetch(`/api/activities/${selectedChild?.id}`, {
-      method: "POST",
-      body: JSON.stringify(activity),
-    });
+  async function createNewActivity(newActivity: ActivityDTO) {
+    try {
+      closeCreateActivityForm();
+      updateData((prev) => [...(prev || []), newActivity]);
 
-    if (!response.ok) {
-      throw new Error("Could not create activity");
+      const response = await fetch(`/api/activities/${selectedChild?.id}`, {
+        method: "POST",
+        body: JSON.stringify(newActivity),
+      });
+
+      if (!response.ok) {
+        throw new Error("Could not create activity");
+      }
+
+      const data: ActivityDTO = await response.json();
+
+      return updateData(
+        (prev) =>
+          prev?.map((activity) =>
+            activity.id === newActivity.id ? data : activity
+          ) || []
+      );
+    } catch (error) {
+      updateData(
+        (prev) => prev?.filter(({ id }) => id !== newActivity.id) || []
+      );
     }
-
-    const data: ActivityDTO = await response.json();
-    updateData([...activities, data]);
   }
 
-  async function updateActivity(activity: ActivityDTO) {
-    const response = await fetch(
-      `/api/activities/${selectedChild?.id}/${activity.id}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(activity),
-      }
+  async function onUpdatedActivity(updatedActivity: ActivityDTO) {
+    return updateData(
+      (prev) =>
+        prev?.map((activity) =>
+          activity.id === updatedActivity.id ? updatedActivity : activity
+        ) || []
     );
-
-    if (!response.ok) {
-      throw new Error("Could not update activity");
-    }
-
-    const data: ActivityDTO = await response.json();
-    updateData(activities.map((a) => (a.id === data.id ? data : a)));
   }
 
-  async function deleteActivity(activityId: ActivityDTO["id"]) {
-    const response = await fetch(
-      `/api/activities/${selectedChild?.id}/${activityId}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Could not delete activity");
-    }
-
-    updateData(activities.filter((a) => a.id !== activityId));
+  async function onDeletedActivity(activityId: ActivityDTO["id"]) {
+    return updateData((prev) => prev?.filter((a) => a.id !== activityId) ?? []);
   }
 
   if (!isValidDate(currentDate)) {
@@ -142,10 +131,7 @@ export const DailyActivities = () => {
       <Header
         title={`${selectedChild?.name}s dag`}
         icons={
-          <IconButton
-            icon="add"
-            onClick={() => showCreateOrUpdateActivityForm()}
-          />
+          <IconButton icon="add" onClick={() => showCreateActivityForm()} />
         }
       >
         <div className="flex-space-between mb-16">
@@ -165,83 +151,51 @@ export const DailyActivities = () => {
           </button>
         </div>
       </Header>
+
       <div className="content">
         <div className="flex-space-between">
           <h3>Händelser</h3>
         </div>
 
-        <div>
+        {
           {
-            {
-              idle: <p>Hämtar händelser...</p>,
-              pending: <p>Hämtar händelser...</p>,
-              success: activities.length ? (
-                [...activities]
-                  .map((activity) => ({
-                    ...activity,
-                    startTime: new Date(activity.startTime),
-                    endTime: activity.endTime
-                      ? new Date(activity.endTime)
-                      : activity.endTime,
-                  }))
-                  .sort(
-                    (a, b) =>
-                      new Date(b.startTime).getTime() -
-                      new Date(a.startTime).getTime()
-                  )
-                  .map(({ id, startTime, endTime, category, details }) => (
-                    <div
-                      key={id}
-                      onClick={() => showCreateOrUpdateActivityForm(id)}
-                      className={styles.activityItem}
-                    >
-                      <div className={styles.activityInfo}>
-                        <p className={styles.activityTime}>
-                          {formatTime(startTime)}
-                          {endTime ? ` - ${formatTime(endTime)}` : ""}
-                        </p>
-                        <span className={styles.activityElapsedTime}>
-                          {getElapsedTime(startTime)}
-                        </span>
-                        <div className={styles.activityCategory}>
-                          <span>{categoriesDisplayTextMap[category]}</span>
-                          {details && " - "}
-                          {details ? (
-                            <span className={styles.activityDetails}>
-                              {details}
-                            </span>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-              ) : (
-                <p>Inga registrerade händelser</p>
-              ),
-              error: <p>Kunde inte hämta händelser.</p>,
-            }[status]
-          }
-        </div>
+            idle: <p>Hämtar händelser...</p>,
+            pending: <p>Hämtar händelser...</p>,
+            success: activities.length ? (
+              [...activities]
+                .map((activity) => ({
+                  ...activity,
+                  startTime: new Date(activity.startTime),
+                  endTime: activity.endTime
+                    ? new Date(activity.endTime)
+                    : activity.endTime,
+                }))
+                .sort(
+                  (a, b) =>
+                    new Date(b.startTime).getTime() -
+                    new Date(a.startTime).getTime()
+                )
+                .map((activity) => (
+                  <ActivityItem
+                    key={activity.id}
+                    activity={activity}
+                    currentDate={currentDate}
+                    onDeleted={onDeletedActivity}
+                    onUpdated={onUpdatedActivity}
+                  />
+                ))
+            ) : (
+              <p>Inga registrerade händelser</p>
+            ),
+            error: <p>Kunde inte hämta händelser.</p>,
+          }[status]
+        }
 
-        {createOrUpdateActivity && (
+        {createActivityFormVisible && (
           <ActivityForm
             date={new Date(currentDate)}
-            onClose={closeShowCreateOrUpdateActivityForm}
-            activityToUpdate={activities.find(
-              (activity) =>
-                activity.id.toString() ===
-                ensureArray(router.query.activityId)[0]
-            )}
-            onSubmit={async (activity, newActivity) => {
-              newActivity
-                ? await createNewActivity(activity)
-                : await updateActivity(activity);
-              closeShowCreateOrUpdateActivityForm();
-            }}
-            onDelete={async (activityId) => {
-              await deleteActivity(activityId);
-              closeShowCreateOrUpdateActivityForm();
-            }}
+            onClose={closeCreateActivityForm}
+            onSubmit={createNewActivity}
           />
         )}
       </div>

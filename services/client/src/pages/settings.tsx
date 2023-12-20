@@ -29,7 +29,7 @@ const Settings = () => {
             </li>
           ))}
         </ul>
-        <button onClick={logout}>Logout</button>
+        <button onClick={logout}>Logga ut</button>
       </div>
     </>
   );
