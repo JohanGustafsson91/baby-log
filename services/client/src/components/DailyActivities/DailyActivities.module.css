@@ -5,7 +5,10 @@
   right: 0;
   bottom: 0;
   background-color: var(--background-color);
-  overflow: scroll;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  z-index: 2;
 }
 
 .formGroup {
