@@ -30,8 +30,8 @@ export const useAsync = <T>() => {
     [setState]
   );
 
-  const updateData = useRef((newData: T) =>
-    setState((prev) => ({ ...prev, data: newData }))
+  const updateData = useRef((cb: (data: T | undefined) => T) =>
+    setState((prev) => ({ ...prev, data: cb(prev.data) }))
   );
 
   return { ...state, execute, updateData: updateData.current };

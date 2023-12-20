@@ -93,18 +93,18 @@ export const getElapsedTime = (date: Date) => {
   const elapsedYears = Math.floor(elapsedDays / 365);
 
   if (elapsedSeconds < 60) {
-    return `${elapsedSeconds} sek sen`;
+    return `${elapsedSeconds} sek`;
   } else if (elapsedMinutes < 60) {
-    return `${elapsedMinutes} min sen`;
+    return `${elapsedMinutes} min`;
   } else if (elapsedHours < 24) {
-    return `${elapsedHours} tim. ${elapsedMinutes % 60} min sen`;
+    return `${elapsedHours} tim. ${elapsedMinutes % 60} min`;
   } else if (elapsedDays < 7) {
-    return `${elapsedDays} dag${elapsedDays === 1 ? "" : "ar"} sen`;
+    return `${elapsedDays} dag${elapsedDays === 1 ? "" : "ar"}`;
   } else if (elapsedWeeks < 4) {
-    return `${elapsedWeeks} veck${elapsedWeeks === 1 ? "a" : "or"} sen`;
+    return `${elapsedWeeks} veck${elapsedWeeks === 1 ? "a" : "or"}`;
   } else if (elapsedMonths < 12) {
-    return `${elapsedMonths} månad${elapsedMonths === 1 ? "" : "er"} sen`;
+    return `${elapsedMonths} månad${elapsedMonths === 1 ? "" : "er"}`;
   } else {
-    return `${elapsedYears} år sen`;
+    return `${elapsedYears} år`;
   }
 };

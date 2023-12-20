@@ -2,10 +2,13 @@
   background-color: transparent;
   padding: 0px;
   align-items: center;
-  display: flex;
+  display: inline-flex;
   border: 0;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .iconButton svg {
+  width: 30px;
   height: 30px;
 }

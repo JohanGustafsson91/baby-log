@@ -8,17 +8,17 @@ import {
 } from "@/shared/dateUtils";
 import styles from "./DailyActivities.module.css";
 import { Header } from "../Header/Header";
+import { IconButton } from "../Button/Button.IconButton";
 
 export const ActivityForm = ({
   date,
   onClose,
   onSubmit,
   activityToUpdate,
-  onDelete,
 }: Props) => {
   const [form, setForm] = useState<ActivityDTO>({
     category: activityToUpdate?.category ?? categories[0],
-    id: activityToUpdate?.id ?? 0,
+    id: activityToUpdate?.id ?? -1,
     details: activityToUpdate?.details ?? "",
     startTime:
       activityToUpdate?.startTime ??
@@ -34,7 +34,7 @@ export const ActivityForm = ({
     <div className={styles.modal}>
       <Header
         title={`${activityToUpdate ? "Uppdatera" : "Lägg till"} aktivitet`}
-        icons={<button onClick={onClose}>Stäng</button>}
+        icons={<IconButton icon="close" onClick={onClose} />}
       />
 
       <div className="content">
@@ -92,14 +92,9 @@ export const ActivityForm = ({
         </div>
 
         <div className={`flex-space-between ${styles.formGroup}`}>
-          <button onClick={() => onSubmit(form, !Boolean(activityToUpdate))}>
+          <button onClick={() => onSubmit(form)}>
             {activityToUpdate ? "Uppdatera" : "Lägg till"}
           </button>
-          {activityToUpdate ? (
-            <button onClick={() => onDelete(activityToUpdate.id)}>
-              Ta bort
-            </button>
-          ) : null}
         </div>
       </div>
     </div>
@@ -107,9 +102,10 @@ export const ActivityForm = ({
 };
 
 const categories: ActivityDTO["category"][] = [
+  "sleep",
   "food",
   "diaper-change",
-  "sleep",
+  "diaper-change-dirty",
   "hygiene",
   "bath",
   "health-check",
@@ -159,6 +155,5 @@ interface Props {
   onClose: () => void;
   activityToUpdate?: ActivityDTO;
   date: Date;
-  onSubmit: (activity: ActivityDTO, newActivity: boolean) => void;
-  onDelete: (activityId: ActivityDTO["id"]) => void;
+  onSubmit: (activity: ActivityDTO) => void;
 }
