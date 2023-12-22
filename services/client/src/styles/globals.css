@@ -91,6 +91,10 @@ button {
   }
 }
 
+.btn-warning {
+  background-color: var(--error-color);
+}
+
 input {
   background-color: var(--input-background);
   color: var(--input-text);

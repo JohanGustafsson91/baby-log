@@ -19,7 +19,7 @@ export const DailyActivities = () => {
   const {
     data: activities = [],
     status,
-    execute,
+    executeAsync,
     updateData,
   } = useAsync<ActivityDTO[]>();
 
@@ -40,7 +40,7 @@ export const DailyActivities = () => {
         return;
       }
 
-      execute(async function fetchActivities() {
+      executeAsync(async function fetchActivities() {
         const response = await fetch(
           `/api/activities/${selectedChild?.id}/between/${currentDate}/${currentDate}`
         );
@@ -48,7 +48,7 @@ export const DailyActivities = () => {
         return json;
       });
     },
-    [currentDate, execute, selectedChild?.id]
+    [currentDate, executeAsync, selectedChild?.id]
   );
 
   function navigateToDay(currentDate: Date, days: number) {
@@ -179,7 +179,6 @@ export const DailyActivities = () => {
                   <ActivityItem
                     key={activity.id}
                     activity={activity}
-                    currentDate={currentDate}
                     onDeleted={onDeletedActivity}
                     onUpdated={onUpdatedActivity}
                   />

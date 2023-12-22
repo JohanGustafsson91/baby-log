@@ -11,11 +11,15 @@ const SettingsContext = createContext<
 >(undefined);
 
 export const SettingsProvider = (props: PropsWithChildren) => {
-  const { data = [], status, execute } = useAsync<ChildDTO[]>();
+  const {
+    data = [],
+    status,
+    executeAsync: executeAsync,
+  } = useAsync<ChildDTO[]>();
 
   useEffect(
     function fetchChildren() {
-      execute(async function doFetch() {
+      executeAsync(async function doFetch() {
         const response = await fetch("/api/children");
 
         if (!response.ok) {
@@ -26,7 +30,7 @@ export const SettingsProvider = (props: PropsWithChildren) => {
         return data;
       });
     },
-    [execute]
+    [executeAsync]
   );
 
   return (
