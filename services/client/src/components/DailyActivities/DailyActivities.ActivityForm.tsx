@@ -15,6 +15,7 @@ export const ActivityForm = ({
   onClose,
   onSubmit,
   activityToUpdate,
+  onDelete,
 }: Props) => {
   const [form, setForm] = useState<ActivityDTO>({
     category: activityToUpdate?.category ?? categories[0],
@@ -95,6 +96,14 @@ export const ActivityForm = ({
           <button onClick={() => onSubmit(form)}>
             {activityToUpdate ? "Uppdatera" : "Lägg till"}
           </button>
+          {activityToUpdate && onDelete && (
+            <button
+              className="btn-warning"
+              onClick={() => onDelete(activityToUpdate.id)}
+            >
+              Ta bort
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -156,4 +165,5 @@ interface Props {
   activityToUpdate?: ActivityDTO;
   date: Date;
   onSubmit: (activity: ActivityDTO) => void;
+  onDelete?: (id: ActivityDTO["id"]) => void;
 }

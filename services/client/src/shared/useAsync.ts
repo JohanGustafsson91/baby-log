@@ -17,7 +17,7 @@ export const useAsync = <T>() => {
     status: "idle",
   });
 
-  const execute = useCallback(
+  const executeAsync = useCallback(
     async (asyncFunction: AsyncFunction<T>) => {
       try {
         setState({ data: undefined, error: undefined, status: "pending" });
@@ -34,5 +34,9 @@ export const useAsync = <T>() => {
     setState((prev) => ({ ...prev, data: cb(prev.data) }))
   );
 
-  return { ...state, execute, updateData: updateData.current };
+  return {
+    ...state,
+    executeAsync,
+    updateData: updateData.current,
+  };
 };
