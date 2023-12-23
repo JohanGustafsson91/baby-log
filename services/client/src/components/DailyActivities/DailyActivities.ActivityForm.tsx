@@ -41,13 +41,20 @@ export const ActivityForm = ({
       <div className="content">
         <div className={styles.formGroup}>
           <h4>Kategori</h4>
+
           {categories.map((option) => (
-            <label className={styles.label} key={option}>
+            <label
+              className={`${styles.customRadioButton} ${
+                form.category === option ? styles.customRadioButtonChecked : ""
+              }`}
+              key={option}
+            >
               <input
                 type="radio"
                 name="category"
                 value={option}
                 checked={form.category === option}
+                aria-checked={form.category === option}
                 onChange={updateForm}
               />
               {categoriesDisplayTextMap[option]}
