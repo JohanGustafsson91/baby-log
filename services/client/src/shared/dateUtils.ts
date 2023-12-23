@@ -81,8 +81,7 @@ export const isDateInFuture = ({ currentDate }: { currentDate: Date }) => {
   return nextDay > new Date();
 };
 
-export const getElapsedTime = (date: Date) => {
-  const now = new Date();
+export const getElapsedTime = (date: Date, now = new Date()) => {
   const elapsedMilliseconds = now.getTime() - date.getTime();
   const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
   const elapsedMinutes = Math.floor(elapsedSeconds / 60);

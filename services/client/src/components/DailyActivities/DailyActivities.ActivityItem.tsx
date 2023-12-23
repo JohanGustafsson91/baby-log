@@ -79,6 +79,13 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
     );
   }
 
+  const totalTimeText = activity.endTime
+    ? getElapsedTime(activity.startTime, activity.endTime)
+    : "";
+
+  const detailsText =
+    details || totalTimeText ? `- ${details}${totalTimeText}` : "";
+
   return (
     <div
       key={id}
@@ -95,9 +102,8 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
           </p>
           <div className={styles.activityCategory}>
             <span>{categoriesDisplayTextMap[category]}</span>
-            {details && " - "}
-            {details ? (
-              <span className={styles.activityDetails}>{details}</span>
+            {detailsText ? (
+              <span className={styles.activityDetails}>{detailsText}</span>
             ) : null}
           </div>
         </div>

@@ -17,6 +17,36 @@
 
 .label {
   display: block;
+  margin-bottom: 10px;
+}
+
+.customRadioButton {
+  display: inline-block;
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+  border: 1px solid var(--button-border);
+  background-color: var(--button--hover-background);
+  color: var(--button-text);
+  transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
+}
+
+.customRadioButton:hover {
+  background-color: var(--button-hover-background);
+}
+
+.customRadioButton:focus-within {
+  background-color: var(--button-background);
+}
+
+.customRadioButton input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+}
+
+.customRadioButtonChecked {
+  background-color: var(--button-background);
+  transform: scale(1.05);
 }
 
 /* List Item Styles */
