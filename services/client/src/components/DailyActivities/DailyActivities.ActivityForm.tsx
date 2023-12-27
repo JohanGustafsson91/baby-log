@@ -55,7 +55,14 @@ export const ActivityForm = ({
         icons={<IconButton icon="close" onClick={onClose} />}
       />
 
-      <div className="content">
+      <form
+        className="content"
+        onSubmit={function handleSubmit(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          return onSubmit(form);
+        }}
+      >
         <div className={styles.formGroup}>
           <h4>Kategori</h4>
 
@@ -118,11 +125,12 @@ export const ActivityForm = ({
         </div>
 
         <div className={`flex-space-between ${styles.formGroup}`}>
-          <button onClick={() => onSubmit(form)}>
+          <button type="submit">
             {activityToUpdate ? "Uppdatera" : "Lägg till"}
           </button>
           {activityToUpdate && onDelete && (
             <button
+              type="button"
               className="btn-warning"
               onClick={() => onDelete(activityToUpdate.id)}
             >
@@ -130,7 +138,7 @@ export const ActivityForm = ({
             </button>
           )}
         </div>
-      </div>
+      </form>
     </div>
   );
 };
