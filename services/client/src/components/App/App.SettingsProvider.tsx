@@ -40,7 +40,7 @@ export const SettingsProvider = (props: PropsWithChildren) => {
         selectedChild: data[0],
       }}
     >
-      {status === "success" ? props.children : null}
+      {!["idle", "pending"].includes(status) ? props.children : null}
     </SettingsContext.Provider>
   );
 };

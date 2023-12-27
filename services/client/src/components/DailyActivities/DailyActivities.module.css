@@ -72,6 +72,7 @@
 
 .activityText {
   flex: 1;
+  line-height: 1.5;
 }
 
 .activityTime {
@@ -102,6 +103,15 @@
   animation: fadeIn 0.5s ease forwards;
 }
 .activityButtonContainer button {
+  margin-left: 8px;
+}
+
+.categoryItem {
+  display: flex;
+  align-items: center;
+}
+
+.categoryItem svg:first-child {
   margin-left: 8px;
 }
 

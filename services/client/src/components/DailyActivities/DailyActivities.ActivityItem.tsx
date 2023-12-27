@@ -84,7 +84,7 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
     : "";
 
   const detailsText =
-    details || totalTimeText ? `- ${details}${totalTimeText}` : "";
+    details || totalTimeText ? `${details}${totalTimeText}` : "";
 
   return (
     <div

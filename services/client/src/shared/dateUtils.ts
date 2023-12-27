@@ -7,13 +7,15 @@ export const setTimeFromAnotherDate = ({
   targetDate,
   sourceDate,
 }: TimeParams): Date => {
-  const hours: number = sourceDate.getHours();
-  const minutes: number = sourceDate.getMinutes();
-  const seconds: number = sourceDate.getSeconds();
+  const newSourceDate = new Date(sourceDate);
+  const hours: number = newSourceDate.getHours();
+  const minutes: number = newSourceDate.getMinutes();
+  const seconds: number = newSourceDate.getSeconds();
 
-  targetDate.setHours(hours, minutes, seconds);
+  const newTargetDate = new Date(targetDate);
+  newTargetDate.setHours(hours, minutes, seconds);
 
-  return targetDate;
+  return newTargetDate;
 };
 
 export const parseTimeString = (timeString: string, date = new Date()) => {
