@@ -29,6 +29,13 @@
   background-color: var(--button--hover-background);
   color: var(--button-text);
   transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.customRadioButton span {
+  margin-right: 4px;
 }
 
 .customRadioButton:hover {
@@ -51,36 +58,68 @@
 
 /* List Item Styles */
 
-.activityItem {
+.activityItemCard {
   background-color: #2c3e50;
   border: 1px solid #34495e;
   border-radius: 8px;
-  padding: 15px;
+  padding: 16px;
   margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: background-color 0.3s ease;
   cursor: pointer;
+  flex: 1;
+  position: relative;
 }
 
-.activityInfo {
+.activityItem {
   display: flex;
-  flex: 1;
-  align-items: center;
 }
 
-.activityText {
-  flex: 1;
-  line-height: 1.5;
+.activityItemTimeWrapper {
+  width: 100px;
+}
+
+.activityItemTimeAndCircle {
+  display: flex;
+  align-items: center;
 }
 
 .activityTime {
   font-weight: bold;
   color: #ecf0f1;
-  margin-bottom: 8px;
+  margin-left: 8px;
   margin-top: 0;
   display: inline-block;
+}
+
+.activityItemTimeCircle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--button-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activityItemTimeLine {
+  position: relative;
+  height: calc(100% - 46px);
+  top: 8px;
+  left: 14px;
+  width: 1px;
+  border-left: 1px solid var(--button-background);
+}
+
+.activityInfo {
+  display: flex;
+  flex: 1;
+}
+
+.activityText {
+  flex: 1;
 }
 
 .activityElapsedTime {
@@ -91,28 +130,23 @@
 
 .activityCategory {
   color: #3498db;
+  font-weight: bold;
 }
 
 .activityDetails {
-  display: inline-block;
   color: #ecf0f1;
+  display: block;
+  margin-top: 4px;
+  font-weight: normal;
 }
 
 .activityButtonContainer {
   opacity: 0;
   animation: fadeIn 0.5s ease forwards;
 }
+
 .activityButtonContainer button {
   margin-left: 8px;
-}
-
-.categoryItem {
-  display: flex;
-  align-items: center;
-}
-
-.categoryItem svg:first-child {
-  margin-left: 4px;
 }
 
 @keyframes fadeIn {

@@ -20,18 +20,29 @@ export const ActivityForm = ({
   const categoryWithEndTime = categoriesWithEndTime.includes(
     activityToUpdate?.category ?? categories[0]
   );
-  const [form, setForm] = useState<ActivityDTO>({
-    category: activityToUpdate?.category ?? categories[0],
-    id: activityToUpdate?.id ?? -1,
-    details: activityToUpdate?.details ?? "",
-    startTime:
-      activityToUpdate?.startTime ??
-      setTimeFromAnotherDate({ sourceDate: new Date(), targetDate: date }),
-    endTime:
-      categoryWithEndTime && activityToUpdate && !activityToUpdate?.endTime
-        ? setTimeFromAnotherDate({ sourceDate: new Date(), targetDate: date })
-        : activityToUpdate?.endTime ?? undefined,
-  });
+  const [form, setForm] = useState<ActivityDTO>(() =>
+    activityToUpdate
+      ? {
+          ...activityToUpdate,
+          endTime:
+            categoryWithEndTime && !activityToUpdate?.endTime
+              ? setTimeFromAnotherDate({
+                  sourceDate: new Date(),
+                  targetDate: date,
+                })
+              : activityToUpdate?.endTime,
+        }
+      : {
+          category: categories[0],
+          id: -1,
+          details: "",
+          startTime: setTimeFromAnotherDate({
+            sourceDate: new Date(),
+            targetDate: date,
+          }),
+          endTime: undefined,
+        }
+  );
 
   function updateForm(e: Pick<ChangeEvent<HTMLInputElement>, "target">) {
     return setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -63,7 +74,8 @@ export const ActivityForm = ({
                 aria-checked={form.category === option}
                 onChange={updateForm}
               />
-              {categoriesDisplayTextMap[option]}
+              <span>{categoriesDisplayTextMap[option].text}</span>
+              {categoriesDisplayTextMap[option].icon}
             </label>
           ))}
         </div>

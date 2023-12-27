@@ -87,30 +87,47 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
     details || totalTimeText ? `${details}${totalTimeText}` : "";
 
   return (
-    <div
-      key={id}
-      onClick={showEditActivityForm}
-      className={`${styles.activityItem} ${
-        status === "pending" ? styles.loading : ""
-      }`}
-    >
-      <div className={styles.activityInfo}>
-        <div className={styles.activityText}>
-          <p className={styles.activityTime}>
-            {formatTime(startTime)}
-            {endTime ? ` - ${formatTime(endTime)}` : ""}
-          </p>
-          <div className={styles.activityCategory}>
-            <span>{categoriesDisplayTextMap[category]}</span>
-            {detailsText ? (
-              <span className={styles.activityDetails}>{detailsText}</span>
-            ) : null}
+    <div className={styles.activityItem}>
+      <div className={styles.activityItemTimeWrapper}>
+        <div className={styles.activityItemTimeAndCircle}>
+          <div className={styles.activityItemTimeCircle}>
+            {categoriesDisplayTextMap[category].icon}
           </div>
+          <span className={styles.activityTime}>
+            {formatTime(startTime)}
+            {endTime ? (
+              <>
+                <br />
+                {formatTime(endTime)}
+              </>
+            ) : (
+              ""
+            )}
+          </span>
         </div>
+        <div className={styles.activityItemTimeLine} />
+      </div>
+      <div
+        key={id}
+        onClick={showEditActivityForm}
+        className={`${styles.activityItemCard} ${
+          status === "pending" ? styles.loading : ""
+        }`}
+      >
+        <div className={styles.activityInfo}>
+          <div className={styles.activityText}>
+            <div className={styles.activityCategory}>
+              <span>{categoriesDisplayTextMap[category].text}</span>
+              {detailsText ? (
+                <span className={styles.activityDetails}>{detailsText}</span>
+              ) : null}
+            </div>
+          </div>
 
-        <span className={styles.activityElapsedTime}>
-          {getElapsedTime(startTime)}
-        </span>
+          <span className={styles.activityElapsedTime}>
+            {getElapsedTime(startTime)}
+          </span>
+        </div>
       </div>
     </div>
   );

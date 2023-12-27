@@ -1,50 +1,44 @@
 import { ActivityDTO } from "baby-log-api";
-import styles from "./DailyActivities.module.css";
 
 export const categoriesDisplayTextMap: Record<
   ActivityDTO["category"],
-  string | JSX.Element
+  {
+    text: string;
+    icon: JSX.Element;
+  }
 > = {
-  "diaper-change": (
-    <span className={styles.categoryItem}>
-      Blöjbyte <DiaperIcon />
-    </span>
-  ),
-  "diaper-change-dirty": (
-    <span className={styles.categoryItem}>
-      Blöjbyte <DiaperIcon /> <PoopIcon />
-    </span>
-  ),
-  bath: (
-    <span className={styles.categoryItem}>
-      Bad <BathIcon />
-    </span>
-  ),
-  food: (
-    <span className={styles.categoryItem}>
-      Mat <FoodIcon />
-    </span>
-  ),
-  hygiene: (
-    <span className={styles.categoryItem}>
-      Hygien <HygienIcon />
-    </span>
-  ),
-  sleep: (
-    <span className={styles.categoryItem}>
-      Sov <SleepIcon />
-    </span>
-  ),
-  other: (
-    <span className={styles.categoryItem}>
-      Annat <OtherIcon />
-    </span>
-  ),
-  "health-check": (
-    <span className={styles.categoryItem}>
-      Hälsa <HealthCheckIcon />
-    </span>
-  ),
+  "diaper-change": {
+    text: "Blöjbyte",
+    icon: <DiaperIcon />,
+  },
+  "diaper-change-dirty": {
+    text: "Blöjbyte",
+    icon: <PoopIcon />,
+  },
+  bath: {
+    text: "Bad",
+    icon: <BathIcon />,
+  },
+  food: {
+    text: "Mat",
+    icon: <FoodIcon />,
+  },
+  hygiene: {
+    text: "Hygien",
+    icon: <HygienIcon />,
+  },
+  sleep: {
+    text: "Sov",
+    icon: <SleepIcon />,
+  },
+  other: {
+    text: "Annat",
+    icon: <OtherIcon />,
+  },
+  "health-check": {
+    text: "Hälsa",
+    icon: <HealthCheckIcon width="1em" height="1em" />,
+  },
 };
 
 function DiaperIcon(props: IconProps) {
