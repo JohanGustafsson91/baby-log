@@ -17,6 +17,9 @@ export const ActivityForm = ({
   activityToUpdate,
   onDelete,
 }: Props) => {
+  const categoryWithEndTime = categoriesWithEndTime.includes(
+    activityToUpdate?.category ?? categories[0]
+  );
   const [form, setForm] = useState<ActivityDTO>({
     category: activityToUpdate?.category ?? categories[0],
     id: activityToUpdate?.id ?? -1,
@@ -24,7 +27,10 @@ export const ActivityForm = ({
     startTime:
       activityToUpdate?.startTime ??
       setTimeFromAnotherDate({ sourceDate: new Date(), targetDate: date }),
-    endTime: activityToUpdate?.endTime ?? undefined,
+    endTime:
+      categoryWithEndTime && activityToUpdate && !activityToUpdate?.endTime
+        ? setTimeFromAnotherDate({ sourceDate: new Date(), targetDate: date })
+        : activityToUpdate?.endTime ?? undefined,
   });
 
   function updateForm(e: Pick<ChangeEvent<HTMLInputElement>, "target">) {
