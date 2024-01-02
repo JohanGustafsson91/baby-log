@@ -121,6 +121,26 @@ export const deleteActivityForChild = async ({
   return result;
 };
 
+export const getLatestActivityDetails = async ({
+  userId,
+  childId,
+}: {
+  userId: UserDTO["id"];
+  childId: ChildDTO["id"];
+}): Promise<unknown> => {
+  const child = await getChildById({
+    userId,
+    childId,
+  });
+
+  const activities = await ActivityModel.getLatestActivityDetails({
+    childId: child.id,
+    userId,
+  });
+
+  return activities;
+};
+
 const getChildById = async ({
   userId,
   childId,

@@ -9,6 +9,7 @@ import {
 import styles from "./DailyActivities.module.css";
 import { Header } from "../Header/Header";
 import { IconButton } from "../Button/Button.IconButton";
+import { useSettings } from "../App/App.SettingsProvider";
 
 export const ActivityForm = ({
   date,
@@ -43,6 +44,9 @@ export const ActivityForm = ({
           endTime: undefined,
         }
   );
+
+  const { latestDetails } = useSettings();
+  const latestDetailsForCategory = latestDetails?.[form.category] || [];
 
   function updateForm(e: Pick<ChangeEvent<HTMLInputElement>, "target">) {
     return setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -121,7 +125,37 @@ export const ActivityForm = ({
 
         <div className={styles.formGroup}>
           <h4>Info</h4>
-          <input name="details" value={form.details} onChange={updateForm} />
+
+          <input
+            name="details"
+            value={form.details}
+            onChange={updateForm}
+            placeholder="Ange info"
+          />
+          {latestDetailsForCategory ? (
+            <div>
+              <h5>Senaste</h5>
+              {latestDetailsForCategory.map((latestDetail) => (
+                <label
+                  className={`${styles.customRadioButton}`}
+                  key={latestDetail}
+                >
+                  <input
+                    type="radio"
+                    name="category"
+                    value={latestDetail}
+                    onChange={() => {
+                      setForm((prev) => ({
+                        ...prev,
+                        details: latestDetail,
+                      }));
+                    }}
+                  />
+                  <span>{latestDetail}</span>
+                </label>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className={`flex-space-between ${styles.formGroup}`}>
