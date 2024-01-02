@@ -123,6 +123,42 @@ export const ActivityModel = {
 
     return result.affectedRows === 1;
   },
+  getLatestActivityDetails: async ({
+    userId,
+    childId,
+  }: {
+    userId: UserDTO["id"];
+    childId: ChildDTO["id"];
+  }): Promise<ActivityLatestDetailsDTO> => {
+    const query = `
+      SELECT category, GROUP_CONCAT(DISTINCT details) AS details, MAX(start_time) AS latest_start_time
+      FROM (
+        SELECT category, details, start_time, ROW_NUMBER() OVER (PARTITION BY category ORDER BY start_time DESC) AS row_num
+        FROM activities
+        WHERE details IS NOT NULL AND user_id = ? AND child_id = ?
+      ) AS ranked_activities
+      WHERE row_num <= 7
+      GROUP BY category
+      ORDER BY latest_start_time DESC;
+  `;
+
+    const rows = await queryDatabase<DatabaseLatestDetails[]>(query, [
+      userId,
+      childId,
+    ]);
+
+    return rows
+      ? rows.reduce((acc, curr) => {
+          return {
+            ...acc,
+            [curr.category]: curr.details
+              .split(",")
+              .map((string) => string.trim())
+              .filter(Boolean),
+          };
+        }, {} as ActivityLatestDetailsDTO)
+      : rows;
+  },
 };
 
 const toActivity = (activity: DatabaseActivity): ActivityDTO => ({
@@ -151,6 +187,11 @@ export interface ActivityDTO {
   id: number;
 }
 
+export type ActivityLatestDetailsDTO = Record<
+  ActivityCategory,
+  string[] | undefined
+>;
+
 interface DatabaseActivity {
   activity_id: number;
   user_id: number;
@@ -160,4 +201,10 @@ interface DatabaseActivity {
   category: ActivityDTO["category"];
   details: string | null;
   created_at: Date;
+}
+
+interface DatabaseLatestDetails {
+  category: ActivityCategory;
+  details: string;
+  latest_start_time: Date;
 }

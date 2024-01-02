@@ -5,4 +5,7 @@ export * from "./routes/routes.activity";
 
 export type { UserDTO } from "./models/models.user";
 export type { ChildDTO } from "./models/models.child";
-export type { ActivityDTO } from "./models/models.activity";
+export type {
+  ActivityDTO,
+  ActivityLatestDetailsDTO,
+} from "./models/models.activity";

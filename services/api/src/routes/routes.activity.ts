@@ -2,6 +2,7 @@ import {
   createActivity,
   deleteActivity,
   getActivities,
+  getActivityDetails,
   updateActivity,
 } from "../controllers/controllers.activity";
 import { authMiddleware } from "../middleware/middleware.auth";
@@ -17,5 +18,8 @@ export const activityRoutes = {
   }),
   "/api/activities/[childId]/between/[...startAndEndTime]": routeMiddleware({
     GET: authMiddleware(getActivities),
+  }),
+  "/api/activities/[childId]/latest-details": routeMiddleware({
+    GET: authMiddleware(getActivityDetails),
   }),
 };

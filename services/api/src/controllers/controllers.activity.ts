@@ -118,3 +118,21 @@ export const deleteActivity = async (
     return handleError({ res, error });
   }
 };
+
+export const getActivityDetails = async (
+  req: ApiRequest<true>,
+  res: ApiResponse
+) => {
+  try {
+    const childId = parseInt(ensureArray(req.query.childId)[0]);
+
+    const activityDetails = await activityService.getLatestActivityDetails({
+      userId: req.user.id,
+      childId,
+    });
+
+    return res.status(200).json(activityDetails);
+  } catch (error) {
+    return handleError({ res, error });
+  }
+};
