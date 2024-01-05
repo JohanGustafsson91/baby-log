@@ -9,7 +9,6 @@ export const withProtectedRoute = <P extends object>(
   const WithProtectedRoute: NextPage<P> = (props) => {
     const router = useRouter();
     const { session } = useSession();
-    console.log(session);
 
     const currentPage = router.pathname;
 
@@ -20,7 +19,6 @@ export const withProtectedRoute = <P extends object>(
         }
 
         if (session.type === "registered" && currentPage === "/login") {
-          console.log("heheh");
           router.push("/");
         }
       },
@@ -31,7 +29,7 @@ export const withProtectedRoute = <P extends object>(
       session.type === "registered" && currentPage !== "/login",
       session.type === "anonymous" && currentPage === "/login",
     ].some(Boolean);
-    console.log(shouldRender, WrappedComponent);
+
     return shouldRender ? (
       <WrappedComponent {...props} />
     ) : (
