@@ -20,7 +20,16 @@ export const activitiesHandlers = [
     ])
   ),
   http.get("/api/activities/:childId/latest-details", () =>
-    HttpResponse.json<ActivityLatestDetailsDTO[]>([])
+    HttpResponse.json<ActivityLatestDetailsDTO>({
+      bath: [],
+      "diaper-change": [],
+      "diaper-change-dirty": [],
+      "health-check": [],
+      food: ["Välling 2dl", "Gröt"],
+      hygiene: [],
+      other: [],
+      sleep: [],
+    })
   ),
   http.patch("/api/activities/:childId/:activityId", () =>
     HttpResponse.json<boolean>(true)

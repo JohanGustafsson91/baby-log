@@ -131,13 +131,12 @@ export const ActivityModel = {
     childId: ChildDTO["id"];
   }): Promise<ActivityLatestDetailsDTO> => {
     const query = `
-      SELECT category, GROUP_CONCAT(DISTINCT details) AS details, MAX(start_time) AS latest_start_time
+      SELECT category, GROUP_CONCAT(DISTINCT TRIM(details)) AS details, MAX(start_time) AS latest_start_time
       FROM (
         SELECT category, details, start_time, ROW_NUMBER() OVER (PARTITION BY category ORDER BY start_time DESC) AS row_num
         FROM activities
-        WHERE details IS NOT NULL AND user_id = ? AND child_id = ?
+        WHERE details IS NOT NULL AND user_id = ? AND child_id = ? AND start_time >= CURRENT_DATE - INTERVAL 7 DAY
       ) AS ranked_activities
-      WHERE row_num <= 10
       GROUP BY category
       ORDER BY latest_start_time DESC;
   `;
