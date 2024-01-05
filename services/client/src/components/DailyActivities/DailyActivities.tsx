@@ -10,8 +10,7 @@ import { useSettings } from "../App/App.SettingsProvider";
 import { ActivityItem } from "./DailyActivities.ActivityItem";
 
 export const DailyActivities = () => {
-  const router = useRouter();
-  const { query } = router;
+  const { query, push: navigate, pathname } = useRouter();
   const [currentDate] = ensureArray(query.day);
   const [createActivityFormVisible] = ensureArray(query.mode);
 
@@ -20,18 +19,18 @@ export const DailyActivities = () => {
     data: activities = [],
     status,
     executeAsync,
-    updateData,
+    updateData: updateActivities,
   } = useAsync<ActivityDTO[]>();
 
   useEffect(
     function checkValidDay() {
       if (!isValidDate(currentDate)) {
-        router.push(`/${formatDate(new Date())}`, undefined, {
+        navigate(`/${formatDate(new Date())}`, undefined, {
           shallow: true,
         });
       }
     },
-    [router, currentDate]
+    [navigate, currentDate]
   );
 
   useEffect(
@@ -55,35 +54,27 @@ export const DailyActivities = () => {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + days);
 
-    return router.push(`/${formatDate(newDate)}`, undefined, {
+    return navigate(`/${formatDate(newDate)}`, undefined, {
       shallow: true,
     });
   }
 
   function showCreateActivityForm() {
-    return router.push(
-      { query: { ...router.query, mode: "create" } },
-      undefined,
-      {
-        shallow: true,
-      }
-    );
+    return navigate({ query: { ...query, mode: "create" } }, undefined, {
+      shallow: true,
+    });
   }
 
   function closeCreateActivityForm() {
-    return router.push(
-      { pathname: router.pathname, query: { day: router.query.day } },
-      undefined,
-      {
-        shallow: true,
-      }
-    );
+    return navigate({ pathname, query: { day: query.day } }, undefined, {
+      shallow: true,
+    });
   }
 
   async function createNewActivity(newActivity: ActivityDTO) {
     try {
-      closeCreateActivityForm();
-      updateData((prev) => [...(prev || []), newActivity]);
+      await closeCreateActivityForm();
+      updateActivities((prev) => [...(prev || []), newActivity]);
 
       const response = await fetch(`/api/activities/${selectedChild?.id}`, {
         method: "POST",
@@ -96,21 +87,21 @@ export const DailyActivities = () => {
 
       const data: ActivityDTO = await response.json();
 
-      return updateData(
+      return updateActivities(
         (prev) =>
           prev?.map((activity) =>
             activity.id === newActivity.id ? data : activity
           ) || []
       );
     } catch (error) {
-      updateData(
+      updateActivities(
         (prev) => prev?.filter(({ id }) => id !== newActivity.id) || []
       );
     }
   }
 
   async function onUpdatedActivity(updatedActivity: ActivityDTO) {
-    return updateData(
+    return updateActivities(
       (prev) =>
         prev?.map((activity) =>
           activity.id === updatedActivity.id ? updatedActivity : activity
@@ -119,7 +110,9 @@ export const DailyActivities = () => {
   }
 
   async function onDeletedActivity(activityId: ActivityDTO["id"]) {
-    return updateData((prev) => prev?.filter((a) => a.id !== activityId) ?? []);
+    return updateActivities(
+      (prev) => prev?.filter((a) => a.id !== activityId) ?? []
+    );
   }
 
   if (!isValidDate(currentDate)) {
@@ -159,7 +152,7 @@ export const DailyActivities = () => {
 
         {
           {
-            idle: <p>Hämtar händelser...</p>,
+            idle: null,
             pending: <p>Hämtar händelser...</p>,
             success: activities.length ? (
               [...activities]

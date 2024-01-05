@@ -5,17 +5,15 @@ export const Header = ({
   title,
   children,
   icons,
-}: PropsWithChildren<Props>) => {
-  return (
-    <header className={styles.header}>
-      <div className={styles.main}>
-        <h1>{title}</h1>
-        {icons}
-      </div>
-      <div>{children}</div>
-    </header>
-  );
-};
+}: PropsWithChildren<Props>) => (
+  <header className={styles.header}>
+    <div className={styles.main}>
+      <h1>{title}</h1>
+      {icons}
+    </div>
+    <div>{children}</div>
+  </header>
+);
 
 interface Props {
   title: string;

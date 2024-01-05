@@ -6,7 +6,7 @@ const SettingsContext = createContext<
   | {
       children: ChildDTO[];
       selectedChild: ChildDTO | undefined;
-      latestDetails: ActivityLatestDetailsDTO | undefined;
+      latestActivityDetails: ActivityLatestDetailsDTO | undefined;
     }
   | undefined
 >(undefined);
@@ -14,8 +14,10 @@ const SettingsContext = createContext<
 export const SettingsProvider = (props: PropsWithChildren) => {
   const { data = [], status, executeAsync } = useAsync<ChildDTO[]>();
 
-  const { data: latestDetails, executeAsync: executeAsyncLatestDetails } =
-    useAsync<ActivityLatestDetailsDTO>();
+  const {
+    data: latestActivityDetails,
+    executeAsync: executeAsyncLatestActivityDetails,
+  } = useAsync<ActivityLatestDetailsDTO>();
 
   useEffect(
     function fetchChildren() {
@@ -36,12 +38,12 @@ export const SettingsProvider = (props: PropsWithChildren) => {
   const selectedChild = data[0];
 
   useEffect(
-    function fetchLatestDetails() {
+    function fetchLatestActivityDetails() {
       if (!selectedChild?.id) {
         return undefined;
       }
 
-      executeAsyncLatestDetails(async function doFetch() {
+      executeAsyncLatestActivityDetails(async function doFetch() {
         const response = await fetch(
           `/api/activities/${selectedChild.id}/latest-details`
         );
@@ -54,7 +56,7 @@ export const SettingsProvider = (props: PropsWithChildren) => {
         return data;
       });
     },
-    [executeAsyncLatestDetails, selectedChild?.id]
+    [executeAsyncLatestActivityDetails, selectedChild?.id]
   );
 
   return (
@@ -62,7 +64,7 @@ export const SettingsProvider = (props: PropsWithChildren) => {
       value={{
         children: data,
         selectedChild,
-        latestDetails,
+        latestActivityDetails,
       }}
     >
       {!["idle", "pending"].includes(status) ? props.children : null}
