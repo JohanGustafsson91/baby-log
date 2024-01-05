@@ -45,8 +45,8 @@ export const ActivityForm = ({
         }
   );
 
-  const { latestDetails } = useSettings();
-  const latestDetailsForCategory = latestDetails?.[form.category] || [];
+  const { latestActivityDetails } = useSettings();
+  const latestDetailsForCategory = latestActivityDetails?.[form.category] || [];
 
   function updateForm(e: Pick<ChangeEvent<HTMLInputElement>, "target">) {
     return setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));

@@ -8,6 +8,8 @@ import { SessionProvider } from "./App.SessionProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
+enableMocking();
+
 export const App = ({ Component, pageProps }: AppProps) => {
   return (
     <>
@@ -31,3 +33,14 @@ export const App = ({ Component, pageProps }: AppProps) => {
     </>
   );
 };
+
+async function enableMocking() {
+  if (process.env.NODE_ENV !== "development") {
+    return;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { worker } = require("../../mocks/browser");
+
+  return worker.start();
+}

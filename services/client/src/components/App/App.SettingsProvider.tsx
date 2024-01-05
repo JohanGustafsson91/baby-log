@@ -6,7 +6,7 @@ const SettingsContext = createContext<
   | {
       children: ChildDTO[];
       selectedChild: ChildDTO | undefined;
-      latestDetails: ActivityLatestDetailsDTO | undefined;
+      latestActivityDetails: ActivityLatestDetailsDTO | undefined;
     }
   | undefined
 >(undefined);
@@ -64,7 +64,7 @@ export const SettingsProvider = (props: PropsWithChildren) => {
       value={{
         children: data,
         selectedChild,
-        latestDetails: latestActivityDetails,
+        latestActivityDetails,
       }}
     >
       {!["idle", "pending"].includes(status) ? props.children : null}

@@ -19,7 +19,10 @@ const SessionContext = createContext<
 export const SessionProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useState<Session | undefined>(undefined);
 
-  useEffect(interceptFetch, []);
+  useEffect(
+    () => interceptFetch({ onUnathorized: () => setSession(anonymousSession) }),
+    []
+  );
 
   const fetchSessionMemoized = useCallback(async function fetchSession() {
     try {
@@ -83,7 +86,7 @@ export function useSession() {
   return ctx;
 }
 
-function interceptFetch() {
+function interceptFetch(config?: { onUnathorized: () => void }) {
   const { fetch: originalFetch } = globalThis;
 
   globalThis.fetch = async (...args) => {
@@ -110,6 +113,7 @@ function interceptFetch() {
       });
 
       if (!refreshTokenResponse.ok) {
+        config?.onUnathorized();
         return response;
       }
 
