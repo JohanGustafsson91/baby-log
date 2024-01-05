@@ -137,7 +137,7 @@ export const ActivityModel = {
         FROM activities
         WHERE details IS NOT NULL AND user_id = ? AND child_id = ?
       ) AS ranked_activities
-      WHERE row_num <= 7
+      WHERE row_num <= 10
       GROUP BY category
       ORDER BY latest_start_time DESC;
   `;

@@ -6,15 +6,11 @@ export const TabBar = () => {
   const { session } = useSession();
   const router = useRouter();
 
-  function navigate(path: string) {
-    router.push(path);
-  }
-
   return session.type === "registered" ? (
     <footer className={styles.tabBar}>
       {routes.map(({ text, path, pathname }) => (
         <div
-          onClick={() => navigate(path)}
+          onClick={() => router.push(path)}
           key={text}
           className={`${styles.tabBarItem} ${
             router.pathname === pathname ? styles.tabBarItemActive : ""

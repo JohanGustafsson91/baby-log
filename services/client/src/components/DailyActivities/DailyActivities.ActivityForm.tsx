@@ -54,125 +54,130 @@ export const ActivityForm = ({
 
   return (
     <div className={styles.modal}>
-      <Header
-        title={`${activityToUpdate ? "Uppdatera" : "Lägg till"} aktivitet`}
-        icons={<IconButton icon="close" onClick={onClose} />}
-      />
+      <div className={styles.modalContent}>
+        <Header
+          title={`${activityToUpdate ? "Uppdatera" : "Lägg till"} aktivitet`}
+          icons={<IconButton icon="close" onClick={onClose} />}
+        />
 
-      <form
-        className="content"
-        onSubmit={function handleSubmit(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          return onSubmit(form);
-        }}
-      >
-        <div className={styles.formGroup}>
-          <h4>Kategori</h4>
+        <form
+          className="content"
+          onSubmit={function handleSubmit(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            return onSubmit(form);
+          }}
+        >
+          <div className={styles.formGroup}>
+            <h4>Kategori</h4>
 
-          {categories.map((option) => (
-            <label
-              className={`${styles.customRadioButton} ${
-                form.category === option ? styles.customRadioButtonChecked : ""
-              }`}
-              key={option}
-            >
-              <input
-                type="radio"
-                name="category"
-                value={option}
-                checked={form.category === option}
-                aria-checked={form.category === option}
-                onChange={updateForm}
-              />
-              <span>{categoriesDisplayTextMap[option].text}</span>
-              {categoriesDisplayTextMap[option].icon}
-            </label>
-          ))}
-        </div>
+            {categories.map((option) => (
+              <label
+                className={`${styles.customRadioButton} ${
+                  form.category === option
+                    ? styles.customRadioButtonChecked
+                    : ""
+                }`}
+                key={option}
+              >
+                <input
+                  type="radio"
+                  name="category"
+                  value={option}
+                  checked={form.category === option}
+                  aria-checked={form.category === option}
+                  onChange={updateForm}
+                />
+                <span>{categoriesDisplayTextMap[option].text}</span>
+                {categoriesDisplayTextMap[option].icon}
+              </label>
+            ))}
+          </div>
 
-        <div className={styles.formGroup}>
-          <h4>Tid</h4>
-          <TimeInput
-            name="startTime"
-            value={formatTime(form.startTime)}
-            isValidInput={(value) => validInputRegex().test(value)}
-            onValidTimeInput={(timeString) =>
-              setForm((prev) => ({
-                ...prev,
-                startTime: parseTimeString(timeString, date),
-              }))
-            }
-          />
-          {categoriesWithEndTime.includes(form.category) ? (
+          <div className={styles.formGroup}>
+            <h4>Tid</h4>
             <TimeInput
-              name="endTime"
-              value={form.endTime ? formatTime(form.endTime) : ""}
-              isValidInput={(value) =>
-                validInputRegex().test(value) || value === ""
-              }
+              name="startTime"
+              value={formatTime(form.startTime)}
+              isValidInput={(value) => validInputRegex().test(value)}
               onValidTimeInput={(timeString) =>
                 setForm((prev) => ({
                   ...prev,
-                  endTime: timeString
-                    ? parseTimeString(timeString, date)
-                    : null,
+                  startTime: parseTimeString(timeString, date),
                 }))
               }
             />
-          ) : null}
-        </div>
+            {categoriesWithEndTime.includes(form.category) ? (
+              <TimeInput
+                name="endTime"
+                value={form.endTime ? formatTime(form.endTime) : ""}
+                isValidInput={(value) =>
+                  validInputRegex().test(value) || value === ""
+                }
+                onValidTimeInput={(timeString) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    endTime: timeString
+                      ? parseTimeString(timeString, date)
+                      : null,
+                  }))
+                }
+              />
+            ) : null}
+          </div>
 
-        <div className={styles.formGroup}>
-          <h4>Info</h4>
+          <div className={styles.formGroup}>
+            <h4>Info</h4>
 
-          <input
-            name="details"
-            value={form.details}
-            onChange={updateForm}
-            placeholder="Ange info"
-          />
-          {latestDetailsForCategory ? (
-            <div>
-              <h5>Senaste</h5>
-              {latestDetailsForCategory.map((latestDetail) => (
-                <label
-                  className={`${styles.customRadioButton}`}
-                  key={latestDetail}
-                >
-                  <input
-                    type="radio"
-                    name="category"
-                    value={latestDetail}
-                    onChange={() => {
-                      setForm((prev) => ({
-                        ...prev,
-                        details: latestDetail,
-                      }));
-                    }}
-                  />
-                  <span>{latestDetail}</span>
-                </label>
-              ))}
-            </div>
-          ) : null}
-        </div>
+            <input
+              name="details"
+              value={form.details}
+              onChange={updateForm}
+              placeholder="Ange info"
+            />
 
-        <div className={`flex-space-between ${styles.formGroup}`}>
-          <button type="submit">
-            {activityToUpdate ? "Uppdatera" : "Lägg till"}
-          </button>
-          {activityToUpdate && onDelete && (
-            <button
-              type="button"
-              className="btn-warning"
-              onClick={() => onDelete(activityToUpdate.id)}
-            >
-              Ta bort
+            {latestDetailsForCategory.length ? (
+              <div>
+                <h5>Senaste</h5>
+                {latestDetailsForCategory.map((latestDetail) => (
+                  <label
+                    className={`${styles.customRadioButton}`}
+                    key={latestDetail}
+                  >
+                    <input
+                      type="radio"
+                      name="category"
+                      value={latestDetail}
+                      onChange={() => {
+                        setForm((prev) => ({
+                          ...prev,
+                          details: latestDetail,
+                        }));
+                      }}
+                    />
+                    <span>{latestDetail}</span>
+                  </label>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <div className={`flex-space-between ${styles.formGroup}`}>
+            <button type="submit">
+              {activityToUpdate ? "Uppdatera" : "Lägg till"}
             </button>
-          )}
-        </div>
-      </form>
+            {activityToUpdate && onDelete && (
+              <button
+                type="button"
+                className="btn-warning"
+                onClick={() => onDelete(activityToUpdate.id)}
+              >
+                Ta bort
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
