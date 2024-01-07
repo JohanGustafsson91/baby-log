@@ -45,7 +45,6 @@ export const ActivityModel = {
       SELECT *
       FROM activities
       WHERE child_id = ?
-      AND user_id = ?
       AND DATE(start_time) >= ?
       AND DATE(start_time) <= ?
       ORDER BY start_time DESC
@@ -73,7 +72,6 @@ export const ActivityModel = {
       SELECT *
       FROM activities
       WHERE activity_id = ?
-      AND user_id = ?
       AND child_id = ?
     `;
 
@@ -116,7 +114,7 @@ export const ActivityModel = {
   }) => {
     const query = `
         DELETE FROM activities
-        WHERE activity_id = ? AND user_id = ? AND child_id = ?;
+        WHERE activity_id = ? AND child_id = ?;
     `;
 
     const result = await queryDatabase(query, [activityId, userId, childId]);
@@ -135,7 +133,7 @@ export const ActivityModel = {
       FROM (
         SELECT category, details, start_time, ROW_NUMBER() OVER (PARTITION BY category ORDER BY start_time DESC) AS row_num
         FROM activities
-        WHERE details IS NOT NULL AND user_id = ? AND child_id = ? AND start_time >= CURRENT_DATE - INTERVAL 7 DAY
+        WHERE details IS NOT NULL AND child_id = ? AND start_time >= CURRENT_DATE - INTERVAL 7 DAY
       ) AS ranked_activities
       GROUP BY category
       ORDER BY latest_start_time DESC;
