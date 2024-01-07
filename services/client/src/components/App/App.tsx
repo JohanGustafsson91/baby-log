@@ -10,37 +10,32 @@ const inter = Inter({ subsets: ["latin"] });
 
 enableMocking();
 
-export const App = ({ Component, pageProps }: AppProps) => {
-  return (
-    <>
-      <Head>
-        <title>Baby Log</title>
-        <meta name="description" content="Baby log app" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+export const App = ({ Component, pageProps }: AppProps) => (
+  <>
+    <Head>
+      <title>Baby Log</title>
+      <meta name="description" content="Baby log app" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="mobile-web-app-capable" content="yes" />
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
 
-      <SessionProvider>
-        <SettingsProvider>
-          <div className={`${inter.className} ${styles.layout}`}>
-            <Component {...pageProps} />
-            <TabBar />
-          </div>
-        </SettingsProvider>
-      </SessionProvider>
-    </>
-  );
-};
+    <SessionProvider>
+      <SettingsProvider>
+        <div className={`${inter.className} ${styles.layout}`}>
+          <Component {...pageProps} />
+          <TabBar />
+        </div>
+      </SettingsProvider>
+    </SessionProvider>
+  </>
+);
 
 async function enableMocking() {
-  if (process.env.NODE_ENV !== "development") {
-    return;
+  if (process.env.NEXT_PUBLIC_MSW_ENABLED) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { worker } = require("../../mocks/browser");
+    return worker?.start?.();
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { worker } = require("../../mocks/browser");
-
-  return worker.start();
 }
