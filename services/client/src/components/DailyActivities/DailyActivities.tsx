@@ -13,8 +13,8 @@ export const DailyActivities = () => {
   const { query, push: navigate, pathname } = useRouter();
   const [currentDate] = ensureArray(query.day);
   const [createActivityFormVisible] = ensureArray(query.mode);
-
   const { selectedChild } = useSettings();
+
   const {
     data: activities = [],
     status,
@@ -39,7 +39,7 @@ export const DailyActivities = () => {
         return;
       }
 
-      executeAsync(async function fetchActivities() {
+      executeAsync(async () => {
         const response = await fetch(
           `/api/activities/${selectedChild?.id}/between/${currentDate}/${currentDate}`
         );

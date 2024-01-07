@@ -11,9 +11,10 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
   const [mode, setMode] = useState<"viewActivity" | "updateActivity">(
     "viewActivity"
   );
-  const { id, startTime, endTime, category, details } = activity;
   const { selectedChild } = useSettings();
   const { status, executeAsync } = useAsync();
+
+  const { id, startTime, endTime, category, details } = activity;
 
   function setViewMode() {
     setMode("viewActivity");
@@ -26,7 +27,7 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
   async function updateActivity(form: ActivityDTO) {
     setViewMode();
 
-    executeAsync(async function makeRequest() {
+    executeAsync(async () => {
       try {
         onUpdated(form);
 
@@ -53,7 +54,7 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
   async function deleteActivity(activityId: ActivityDTO["id"]) {
     setViewMode();
 
-    executeAsync(async function makeReuqest() {
+    executeAsync(async () => {
       const response = await fetch(
         `/api/activities/${selectedChild?.id}/${activityId}`,
         {

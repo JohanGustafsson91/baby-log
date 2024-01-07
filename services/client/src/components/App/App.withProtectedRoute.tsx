@@ -12,25 +12,20 @@ export const withProtectedRoute = <P extends object>(
 
     const currentPage = router.pathname;
 
+    const redirectToUrl = Object.values(pageGuardsMap)
+      .map((guard) => guard({ userType: session.type, currentPage }))
+      .find(Boolean);
+
     useEffect(
       function handleProtectRoute() {
-        if (session.type === "anonymous" && currentPage !== "/login") {
-          router.push("/login");
-        }
-
-        if (session.type === "registered" && currentPage === "/login") {
-          router.push("/");
+        if (redirectToUrl) {
+          router.push(redirectToUrl);
         }
       },
-      [currentPage, router, session.type]
+      [redirectToUrl, router]
     );
 
-    const shouldRender = [
-      session.type === "registered" && currentPage !== "/login",
-      session.type === "anonymous" && currentPage === "/login",
-    ].some(Boolean);
-
-    return shouldRender ? (
+    return !redirectToUrl ? (
       <WrappedComponent {...props} />
     ) : (
       <div className="content" />
@@ -39,3 +34,17 @@ export const withProtectedRoute = <P extends object>(
 
   return WithProtectedRoute;
 };
+
+const pageGuardsMap: Record<string, PageGuard> = {
+  notAuthorizedForPage: ({ userType, currentPage }) =>
+    userType === "anonymous" && currentPage !== "/login" ? "/login" : undefined,
+  authorizedUserOnLoginPage: ({ userType, currentPage }) =>
+    userType === "registered" && currentPage === "/login"
+      ? "/today"
+      : undefined,
+};
+
+type PageGuard = (arg: {
+  userType: "registered" | "anonymous";
+  currentPage: string;
+}) => string | undefined;

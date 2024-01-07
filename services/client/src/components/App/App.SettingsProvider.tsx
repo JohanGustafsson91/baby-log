@@ -2,15 +2,6 @@ import { useAsync } from "@/shared/useAsync";
 import type { ActivityLatestDetailsDTO, ChildDTO } from "baby-log-api";
 import { createContext, PropsWithChildren, useContext, useEffect } from "react";
 
-const SettingsContext = createContext<
-  | {
-      children: ChildDTO[];
-      selectedChild: ChildDTO | undefined;
-      latestActivityDetails: ActivityLatestDetailsDTO | undefined;
-    }
-  | undefined
->(undefined);
-
 export const SettingsProvider = (props: PropsWithChildren) => {
   const { data = [], status, executeAsync } = useAsync<ChildDTO[]>();
 
@@ -21,7 +12,7 @@ export const SettingsProvider = (props: PropsWithChildren) => {
 
   useEffect(
     function fetchChildren() {
-      executeAsync(async function doFetch() {
+      executeAsync(async () => {
         const response = await fetch("/api/children");
 
         if (!response.ok) {
@@ -43,7 +34,7 @@ export const SettingsProvider = (props: PropsWithChildren) => {
         return undefined;
       }
 
-      executeAsyncLatestActivityDetails(async function doFetch() {
+      executeAsyncLatestActivityDetails(async () => {
         const response = await fetch(
           `/api/activities/${selectedChild.id}/latest-details`
         );
@@ -71,6 +62,15 @@ export const SettingsProvider = (props: PropsWithChildren) => {
     </SettingsContext.Provider>
   );
 };
+
+const SettingsContext = createContext<
+  | {
+      children: ChildDTO[];
+      selectedChild: ChildDTO | undefined;
+      latestActivityDetails: ActivityLatestDetailsDTO | undefined;
+    }
+  | undefined
+>(undefined);
 
 export function useSettings() {
   const ctx = useContext(SettingsContext);

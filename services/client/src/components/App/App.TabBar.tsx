@@ -6,21 +6,24 @@ export const TabBar = () => {
   const { session } = useSession();
   const router = useRouter();
 
-  return session.type === "registered" ? (
-    <footer className={styles.tabBar}>
-      {routes.map(({ text, path, pathname }) => (
-        <div
-          onClick={() => router.push(path)}
-          key={text}
-          className={`${styles.tabBarItem} ${
-            router.pathname === pathname ? styles.tabBarItemActive : ""
-          }`}
-        >
-          {text}
-        </div>
-      ))}
-    </footer>
-  ) : null;
+  return {
+    registered: (
+      <footer className={styles.tabBar}>
+        {routes.map(({ text, path, pathname }) => (
+          <div
+            onClick={() => router.push(path)}
+            key={text}
+            className={`${styles.tabBarItem} ${
+              router.pathname === pathname ? styles.tabBarItemActive : ""
+            }`}
+          >
+            {text}
+          </div>
+        ))}
+      </footer>
+    ),
+    anonymous: null,
+  }[session.type];
 };
 
 const routes = [
