@@ -1,5 +1,5 @@
 import { ActivityDTO } from "baby-log-api";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { categoriesDisplayTextMap } from "./DailyActivities.categoriesDisplayTextMap";
 import {
   formatTime,
@@ -21,6 +21,7 @@ export const ActivityForm = ({
   const categoryWithEndTime = categoriesWithEndTime.includes(
     activityToUpdate?.category ?? categories[0]
   );
+
   const [form, setForm] = useState<ActivityDTO>(() =>
     activityToUpdate
       ? {
@@ -44,12 +45,27 @@ export const ActivityForm = ({
           endTime: undefined,
         }
   );
-
+  const formRef = useRef<HTMLFormElement | null>(null);
   const { latestActivityDetails } = useSettings();
+
   const latestDetailsForCategory = latestActivityDetails?.[form.category] || [];
 
   function updateForm(e: Pick<ChangeEvent<HTMLInputElement>, "target">) {
     return setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  function handleSelectActivityDetails(details: ActivityDTO["details"]) {
+    return function onClick() {
+      formRef.current?.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: "smooth",
+      });
+
+      return setForm((prev) => ({
+        ...prev,
+        details,
+      }));
+    };
   }
 
   return (
@@ -62,6 +78,7 @@ export const ActivityForm = ({
 
         <form
           className="content"
+          ref={formRef}
           onSubmit={function handleSubmit(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -148,12 +165,7 @@ export const ActivityForm = ({
                       type="radio"
                       name="category"
                       value={latestDetail}
-                      onChange={() => {
-                        setForm((prev) => ({
-                          ...prev,
-                          details: latestDetail,
-                        }));
-                      }}
+                      onChange={handleSelectActivityDetails(latestDetail)}
                     />
                     <span>{latestDetail}</span>
                   </label>
