@@ -31,13 +31,11 @@ export const ActivityModel = {
     return insertActivity.insertId;
   },
   getActivitiesBetweenDates: async ({
-    userId,
     childId,
     startDate,
     endDate,
   }: {
     childId: ChildDTO["id"];
-    userId: UserDTO["id"];
     startDate: Date;
     endDate: Date;
   }): Promise<ActivityDTO[]> => {
@@ -52,7 +50,6 @@ export const ActivityModel = {
 
     const rows = await queryDatabase<DatabaseActivity[]>(query, [
       childId,
-      userId,
       startDate.toISOString().split("T")[0],
       endDate.toISOString().split("T")[0],
     ]);
@@ -60,11 +57,9 @@ export const ActivityModel = {
     return rows ? rows.map(toActivity) : rows;
   },
   getActivityByIdAndUserId: async ({
-    userId,
     activityId,
     childId,
   }: {
-    userId: UserDTO["id"];
     activityId: ActivityDTO["id"];
     childId: ChildDTO["id"];
   }) => {
@@ -77,7 +72,6 @@ export const ActivityModel = {
 
     const [rows] = await queryDatabase<DatabaseActivity[]>(query, [
       activityId,
-      userId,
       childId,
     ]);
 
@@ -104,11 +98,9 @@ export const ActivityModel = {
     return result.affectedRows === 1;
   },
   deleteActivity: async ({
-    userId,
     activityId,
     childId,
   }: {
-    userId: UserDTO["id"];
     activityId: ActivityDTO["id"];
     childId: ChildDTO["id"];
   }) => {
@@ -117,15 +109,13 @@ export const ActivityModel = {
         WHERE activity_id = ? AND child_id = ?;
     `;
 
-    const result = await queryDatabase(query, [activityId, userId, childId]);
+    const result = await queryDatabase(query, [activityId, childId]);
 
     return result.affectedRows === 1;
   },
   getLatestActivityDetails: async ({
-    userId,
     childId,
   }: {
-    userId: UserDTO["id"];
     childId: ChildDTO["id"];
   }): Promise<ActivityLatestDetailsDTO> => {
     const query = `
@@ -139,10 +129,7 @@ export const ActivityModel = {
       ORDER BY latest_start_time DESC;
   `;
 
-    const rows = await queryDatabase<DatabaseLatestDetails[]>(query, [
-      userId,
-      childId,
-    ]);
+    const rows = await queryDatabase<DatabaseLatestDetails[]>(query, [childId]);
 
     return rows
       ? rows.reduce((acc, curr) => {
