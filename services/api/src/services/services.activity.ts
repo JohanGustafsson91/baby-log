@@ -22,7 +22,6 @@ export const getActivitiesBetweenDates = async ({
 
   const activities = await ActivityModel.getActivitiesBetweenDates({
     childId: child.id,
-    userId,
     startDate,
     endDate,
   });
@@ -74,7 +73,6 @@ export const updateActivityForChild = async ({
 
   const existingActivity = await ActivityModel.getActivityByIdAndUserId({
     activityId,
-    userId,
     childId: child.id,
   });
 
@@ -115,7 +113,6 @@ export const deleteActivityForChild = async ({
   const result = await ActivityModel.deleteActivity({
     activityId,
     childId: child.id,
-    userId,
   });
 
   return result;
@@ -135,7 +132,6 @@ export const getLatestActivityDetails = async ({
 
   const activities = await ActivityModel.getLatestActivityDetails({
     childId: child.id,
-    userId,
   });
 
   return activities;

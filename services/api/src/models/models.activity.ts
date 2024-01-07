@@ -31,13 +31,11 @@ export const ActivityModel = {
     return insertActivity.insertId;
   },
   getActivitiesBetweenDates: async ({
-    userId,
     childId,
     startDate,
     endDate,
   }: {
     childId: ChildDTO["id"];
-    userId: UserDTO["id"];
     startDate: Date;
     endDate: Date;
   }): Promise<ActivityDTO[]> => {
@@ -45,7 +43,6 @@ export const ActivityModel = {
       SELECT *
       FROM activities
       WHERE child_id = ?
-      AND user_id = ?
       AND DATE(start_time) >= ?
       AND DATE(start_time) <= ?
       ORDER BY start_time DESC
@@ -53,7 +50,6 @@ export const ActivityModel = {
 
     const rows = await queryDatabase<DatabaseActivity[]>(query, [
       childId,
-      userId,
       startDate.toISOString().split("T")[0],
       endDate.toISOString().split("T")[0],
     ]);
@@ -61,11 +57,9 @@ export const ActivityModel = {
     return rows ? rows.map(toActivity) : rows;
   },
   getActivityByIdAndUserId: async ({
-    userId,
     activityId,
     childId,
   }: {
-    userId: UserDTO["id"];
     activityId: ActivityDTO["id"];
     childId: ChildDTO["id"];
   }) => {
@@ -73,13 +67,11 @@ export const ActivityModel = {
       SELECT *
       FROM activities
       WHERE activity_id = ?
-      AND user_id = ?
       AND child_id = ?
     `;
 
     const [rows] = await queryDatabase<DatabaseActivity[]>(query, [
       activityId,
-      userId,
       childId,
     ]);
 
@@ -106,28 +98,24 @@ export const ActivityModel = {
     return result.affectedRows === 1;
   },
   deleteActivity: async ({
-    userId,
     activityId,
     childId,
   }: {
-    userId: UserDTO["id"];
     activityId: ActivityDTO["id"];
     childId: ChildDTO["id"];
   }) => {
     const query = `
         DELETE FROM activities
-        WHERE activity_id = ? AND user_id = ? AND child_id = ?;
+        WHERE activity_id = ? AND child_id = ?;
     `;
 
-    const result = await queryDatabase(query, [activityId, userId, childId]);
+    const result = await queryDatabase(query, [activityId, childId]);
 
     return result.affectedRows === 1;
   },
   getLatestActivityDetails: async ({
-    userId,
     childId,
   }: {
-    userId: UserDTO["id"];
     childId: ChildDTO["id"];
   }): Promise<ActivityLatestDetailsDTO> => {
     const query = `
@@ -135,16 +123,13 @@ export const ActivityModel = {
       FROM (
         SELECT category, details, start_time, ROW_NUMBER() OVER (PARTITION BY category ORDER BY start_time DESC) AS row_num
         FROM activities
-        WHERE details IS NOT NULL AND user_id = ? AND child_id = ? AND start_time >= CURRENT_DATE - INTERVAL 7 DAY
+        WHERE details IS NOT NULL AND child_id = ? AND start_time >= CURRENT_DATE - INTERVAL 7 DAY
       ) AS ranked_activities
       GROUP BY category
       ORDER BY latest_start_time DESC;
   `;
 
-    const rows = await queryDatabase<DatabaseLatestDetails[]>(query, [
-      userId,
-      childId,
-    ]);
+    const rows = await queryDatabase<DatabaseLatestDetails[]>(query, [childId]);
 
     return rows
       ? rows.reduce((acc, curr) => {
