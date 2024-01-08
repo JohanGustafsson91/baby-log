@@ -8,14 +8,6 @@ import {
   useState,
 } from "react";
 
-const SessionContext = createContext<
-  | {
-      session: Session;
-      logout: () => Promise<void>;
-    }
-  | undefined
->(undefined);
-
 export const SessionProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useState<Session | undefined>(undefined);
 
@@ -73,6 +65,14 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     </SessionContext.Provider>
   );
 };
+
+const SessionContext = createContext<
+  | {
+      session: Session;
+      logout: () => Promise<void>;
+    }
+  | undefined
+>(undefined);
 
 export function useSession() {
   const ctx = useContext(SessionContext);

@@ -68,18 +68,20 @@ export const ActivityForm = ({
     };
   }
 
+  const title = activityToUpdate ? "Uppdatera" : "Lägg till";
+
   return (
     <div className={styles.modal}>
       <div className={styles.modalContent}>
         <Header
-          title={`${activityToUpdate ? "Uppdatera" : "Lägg till"} aktivitet`}
+          title={`${title} aktivitet`}
           icons={<IconButton icon="close" onClick={onClose} />}
         />
 
         <form
           className="content"
           ref={formRef}
-          onSubmit={function handleSubmit(e) {
+          onSubmit={(e) => {
             e.preventDefault();
             e.stopPropagation();
             return onSubmit(form);
@@ -175,10 +177,8 @@ export const ActivityForm = ({
           </div>
 
           <div className={`flex-space-between ${styles.formGroup}`}>
-            <button type="submit">
-              {activityToUpdate ? "Uppdatera" : "Lägg till"}
-            </button>
-            {activityToUpdate && onDelete && (
+            <button type="submit">{title}</button>
+            {activityToUpdate && onDelete ? (
               <button
                 type="button"
                 className="btn-warning"
@@ -186,7 +186,7 @@ export const ActivityForm = ({
               >
                 Ta bort
               </button>
-            )}
+            ) : null}
           </div>
         </form>
       </div>
