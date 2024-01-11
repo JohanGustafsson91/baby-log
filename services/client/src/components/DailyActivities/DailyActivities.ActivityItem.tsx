@@ -118,6 +118,9 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
 
             <span className={styles.activityElapsedTime}>
               {getElapsedTime(startTime)}
+              {endTime && category === "sleep" ? (
+                <div>Vaknade för {getElapsedTime(endTime)}</div>
+              ) : null}
             </span>
           </div>
         </div>
