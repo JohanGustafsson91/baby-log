@@ -93,19 +93,53 @@ export const getElapsedTime = (date: Date, now = new Date()) => {
   const elapsedMonths = Math.floor(elapsedDays / 30);
   const elapsedYears = Math.floor(elapsedDays / 365);
 
+  const timeData = {
+    elapsedDays,
+    elapsedHours,
+    elapsedMinutes: elapsedMinutes % 60,
+  };
+
   if (elapsedSeconds < 60) {
-    return `${elapsedSeconds} sek`;
+    return {
+      ...timeData,
+      text: `${elapsedSeconds} sek`,
+    };
   } else if (elapsedMinutes < 60) {
-    return `${elapsedMinutes} min`;
+    return {
+      ...timeData,
+      text: `${elapsedMinutes} min`,
+    };
   } else if (elapsedHours < 24) {
-    return `${elapsedHours} tim. ${elapsedMinutes % 60} min`;
+    return {
+      ...timeData,
+      text: `${elapsedHours} tim. ${elapsedMinutes % 60} min`,
+    };
   } else if (elapsedDays < 7) {
-    return `${elapsedDays} dag${elapsedDays === 1 ? "" : "ar"}`;
+    return {
+      ...timeData,
+      text: `${elapsedDays} dag${elapsedDays === 1 ? "" : "ar"}`,
+    };
   } else if (elapsedWeeks < 4) {
-    return `${elapsedWeeks} veck${elapsedWeeks === 1 ? "a" : "or"}`;
+    return {
+      ...timeData,
+      text: `${elapsedWeeks} veck${elapsedWeeks === 1 ? "a" : "or"}`,
+    };
   } else if (elapsedMonths < 12) {
-    return `${elapsedMonths} månad${elapsedMonths === 1 ? "" : "er"}`;
+    return {
+      ...timeData,
+      text: `${elapsedMonths} månad${elapsedMonths === 1 ? "" : "er"}`,
+    };
   } else {
-    return `${elapsedYears} år`;
+    return {
+      ...timeData,
+      text: `${elapsedYears} år`,
+    };
   }
 };
+
+export const isSameDate = (date1: Date, date2: Date): boolean =>
+  [
+    date1.getFullYear() === date2.getFullYear(),
+    date1.getMonth() === date2.getMonth(),
+    date1.getDate() === date2.getDate(),
+  ].every(Boolean);

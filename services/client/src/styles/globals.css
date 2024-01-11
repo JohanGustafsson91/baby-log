@@ -10,6 +10,8 @@
   --font-color: #ffffff;
   --headline-color: #e0e0e0;
   --error-color: #ff3333;
+  --warning-color: #f39c12; /* Regular warning color (yellowish) */
+  --strong-warning-color: #e74c3c; /* Stronger warning color (reddish) */
 
   --button-background: #3498db;
   --button-text: #ffffff;

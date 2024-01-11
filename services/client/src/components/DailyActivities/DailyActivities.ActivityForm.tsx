@@ -57,7 +57,7 @@ export const ActivityForm = ({
   function handleSelectActivityDetails(details: ActivityDTO["details"]) {
     return function onClick() {
       formRef.current?.scrollTo({
-        top: document.documentElement.scrollHeight,
+        top: formRef.current.scrollHeight,
         behavior: "smooth",
       });
 
