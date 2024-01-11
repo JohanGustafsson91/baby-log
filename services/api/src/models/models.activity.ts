@@ -123,7 +123,7 @@ export const ActivityModel = {
       FROM (
         SELECT category, details, start_time, ROW_NUMBER() OVER (PARTITION BY category ORDER BY start_time DESC) AS row_num
         FROM activities
-        WHERE details IS NOT NULL AND child_id = ? AND start_time >= CURRENT_DATE - INTERVAL 7 DAY
+        WHERE details IS NOT NULL AND child_id = ? AND start_time >= CURRENT_DATE - INTERVAL 3 DAY
       ) AS ranked_activities
       GROUP BY category
       ORDER BY latest_start_time DESC;
