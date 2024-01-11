@@ -33,7 +33,7 @@ export const DailyActivities = () => {
     function reRenderViewEveryMinute() {
       const timerId = setInterval(() => {
         reRender({});
-      }, 60000);
+      }, ONE_MINUTE);
 
       return () => clearInterval(timerId);
     },
@@ -149,8 +149,8 @@ export const DailyActivities = () => {
     );
 
   const showNotifications = !(
-    sortedActivities[0]?.category === "sleep" &&
-    new Date().getHours() >= NIGHT_SLEEP_TIME
+    new Date().getHours() >= NIGHT_SLEEP_START_TIME &&
+    sortedActivities[0]?.category === "sleep"
   );
 
   const notificationsForActivities = showNotifications
@@ -258,15 +258,16 @@ const notificationSettings: Record<
   other: undefined,
 };
 
-const NIGHT_SLEEP_TIME = 19;
+const ONE_MINUTE = 60000;
+const NIGHT_SLEEP_START_TIME = 19;
 
 type NotificationTime = { hours: number; minutes: number };
 type Notification = "none" | "info" | "warning";
 
 const getNotification = (activity: ActivityDTO): Notification => {
-  const definedRules = notificationSettings[activity.category];
+  const rules = notificationSettings[activity.category];
 
-  if (!definedRules) {
+  if (!rules) {
     return "none";
   }
 
@@ -274,22 +275,30 @@ const getNotification = (activity: ActivityDTO): Notification => {
     activity.endTime ?? activity.startTime
   );
 
-  if (
-    elapsedHours + 1 > definedRules.warning.hours &&
-    elapsedMinutes > definedRules.warning.minutes
-  ) {
-    return "warning";
-  }
-
-  if (
-    elapsedHours + 1 > definedRules.info.hours &&
-    elapsedMinutes > definedRules.info.minutes
-  ) {
-    return "info";
-  }
-
-  return "none";
+  return [
+    isBeyondThreshold({
+      elapsedHours,
+      elapsedMinutes,
+      rules: rules.warning,
+    }) && "warning",
+    isBeyondThreshold({
+      elapsedHours,
+      elapsedMinutes,
+      rules: rules.info,
+    }) && "info",
+    "none",
+  ].find(Boolean) as Notification;
 };
+
+const isBeyondThreshold = ({
+  elapsedHours,
+  elapsedMinutes,
+  rules,
+}: {
+  elapsedHours: number;
+  elapsedMinutes: number;
+  rules: NotificationTime;
+}) => elapsedHours + 1 > rules.hours && elapsedMinutes > rules.minutes;
 
 // TODO share
 export const ensureArray = (input: string | string[] | undefined): string[] => {
