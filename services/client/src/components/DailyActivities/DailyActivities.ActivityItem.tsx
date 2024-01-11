@@ -76,7 +76,7 @@ export const ActivityItem = ({
   }
 
   const totalTimeText = activity.endTime
-    ? getElapsedTime(activity.startTime, activity.endTime)
+    ? getElapsedTime(activity.startTime, activity.endTime).text
     : "";
 
   const detailsText =
