@@ -8,13 +8,13 @@ export const activitiesHandlers = [
       {
         category: "diaper-change",
         id: 1,
-        startTime: parseTimeString("07:00"),
+        startTime: parseTimeString("05:00"),
         details: "",
       },
       {
         category: "food",
         id: 2,
-        startTime: parseTimeString("07:15"),
+        startTime: parseTimeString("05:15"),
         details: "Välling 2dl",
       },
     ])

@@ -7,7 +7,12 @@ import { useAsync } from "@/shared/useAsync";
 import { useSettings } from "../App/App.SettingsProvider";
 import { ActivityForm } from "./DailyActivities.ActivityForm";
 
-export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
+export const ActivityItem = ({
+  activity,
+  onDeleted,
+  onUpdated,
+  notification,
+}: Props) => {
   const [mode, setMode] = useState<"viewActivity" | "updateActivity">(
     "viewActivity"
   );
@@ -82,7 +87,11 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
       <div className={styles.activityItem}>
         <div className={styles.activityItemTimeWrapper}>
           <div className={styles.activityItemTimeAndCircle}>
-            <div className={styles.activityItemTimeCircle}>
+            <div
+              className={`${styles.activityItemTimeCircle} ${
+                styles[`activityItemTimeCircle-${notification ?? "none"}`]
+              }`}
+            >
               {categoriesDisplayTextMap[category].icon}
             </div>
             <span className={styles.activityTime}>
@@ -115,14 +124,14 @@ export const ActivityItem = ({ activity, onDeleted, onUpdated }: Props) => {
                 ) : null}
                 {endTime && category === "sleep" ? (
                   <span className={styles.activityDetails}>
-                    Vaknade för {getElapsedTime(endTime)} sedan.
+                    Vaknade för {getElapsedTime(endTime).text} sedan.
                   </span>
                 ) : null}
               </div>
             </div>
 
             <span className={styles.activityElapsedTime}>
-              {getElapsedTime(startTime)}
+              {getElapsedTime(startTime).text}
             </span>
           </div>
         </div>
@@ -144,4 +153,5 @@ interface Props {
   activity: ActivityDTO;
   onDeleted: (id: ActivityDTO["id"]) => void;
   onUpdated: (a: ActivityDTO) => void;
+  notification?: "none" | "info" | "warning";
 }

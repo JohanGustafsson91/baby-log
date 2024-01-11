@@ -117,6 +117,14 @@
   justify-content: center;
 }
 
+.activityItemTimeCircle-info {
+  border: 2px solid var(--warning-color);
+}
+
+.activityItemTimeCircle-warning {
+  border: 2px solid var(--strong-warning-color);
+}
+
 .activityItemTimeLine {
   position: absolute;
   top: 0;

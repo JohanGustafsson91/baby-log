@@ -1,9 +1,15 @@
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAsync } from "@/shared/useAsync";
 import { ActivityDTO } from "baby-log-api";
 import { ActivityForm } from "./DailyActivities.ActivityForm";
-import { formatDate, isDateInFuture, isValidDate } from "@/shared/dateUtils";
+import {
+  formatDate,
+  getElapsedTime,
+  isDateInFuture,
+  isSameDate,
+  isValidDate,
+} from "@/shared/dateUtils";
 import { Header } from "../Header/Header";
 import { IconButton } from "../Button/Button.IconButton";
 import { useSettings } from "../App/App.SettingsProvider";
@@ -14,6 +20,7 @@ export const DailyActivities = () => {
   const [currentDate] = ensureArray(query.day);
   const [createActivityFormVisible] = ensureArray(query.mode);
   const { selectedChild } = useSettings();
+  const [, reRender] = useState<unknown | null>(null);
 
   const {
     data: activities = [],
@@ -21,6 +28,17 @@ export const DailyActivities = () => {
     executeAsync,
     updateData: updateActivities,
   } = useAsync<ActivityDTO[]>();
+
+  useEffect(
+    function reRenderViewEveryMinute() {
+      const timerId = setInterval(() => {
+        reRender({});
+      }, 60000);
+
+      return () => clearInterval(timerId);
+    },
+    [reRender]
+  );
 
   useEffect(
     function checkValidDay() {
@@ -119,6 +137,42 @@ export const DailyActivities = () => {
     return null;
   }
 
+  const sortedActivities = [...activities]
+    .map((activity) => ({
+      ...activity,
+      startTime: new Date(activity.startTime),
+      endTime: activity.endTime ? new Date(activity.endTime) : activity.endTime,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+    );
+
+  const showNotifications = !(
+    sortedActivities[0]?.category === "sleep" &&
+    new Date().getHours() >= NIGHT_SLEEP_TIME
+  );
+
+  const notifications = showNotifications
+    ? Object.values(
+        sortedActivities
+          .filter((a) => isSameDate(a.startTime, new Date()))
+          .reduceRight((acc, curr) => {
+            const category = curr.category.replace("-dirty", "");
+            return {
+              ...acc,
+              [category]: { ...curr, category },
+            };
+          }, {} as Record<ActivityDTO["category"], ActivityDTO>)
+      ).map((latestActivity) => {
+        return {
+          id: latestActivity.id,
+          category: latestActivity.category,
+          hint: getNotification(latestActivity),
+        };
+      })
+    : [];
+
   return (
     <>
       <Header
@@ -155,27 +209,19 @@ export const DailyActivities = () => {
             idle: null,
             pending: <p>Hämtar händelser...</p>,
             success: activities.length ? (
-              [...activities]
-                .map((activity) => ({
-                  ...activity,
-                  startTime: new Date(activity.startTime),
-                  endTime: activity.endTime
-                    ? new Date(activity.endTime)
-                    : activity.endTime,
-                }))
-                .sort(
-                  (a, b) =>
-                    new Date(b.startTime).getTime() -
-                    new Date(a.startTime).getTime()
-                )
-                .map((activity) => (
-                  <ActivityItem
-                    key={activity.id}
-                    activity={activity}
-                    onDeleted={onDeletedActivity}
-                    onUpdated={onUpdatedActivity}
-                  />
-                ))
+              sortedActivities.map((activity) => (
+                <ActivityItem
+                  key={activity.id}
+                  activity={activity}
+                  onDeleted={onDeletedActivity}
+                  onUpdated={onUpdatedActivity}
+                  notification={
+                    notifications.find(
+                      (notification) => notification.id === activity.id
+                    )?.hint
+                  }
+                />
+              ))
             ) : (
               <p>Inga registrerade händelser</p>
             ),
@@ -193,6 +239,56 @@ export const DailyActivities = () => {
       </div>
     </>
   );
+};
+
+const notificationSettings: Record<
+  ActivityDTO["category"],
+  { info: NotificationTime; warning: NotificationTime } | undefined
+> = {
+  sleep: { info: { hours: 3, minutes: 0 }, warning: { hours: 4, minutes: 0 } },
+  food: { info: { hours: 2, minutes: 0 }, warning: { hours: 3, minutes: 0 } },
+  "diaper-change": {
+    info: { hours: 2, minutes: 30 },
+    warning: { hours: 4, minutes: 0 },
+  },
+  "diaper-change-dirty": undefined,
+  "health-check": undefined,
+  bath: undefined,
+  hygiene: undefined,
+  other: undefined,
+};
+
+const NIGHT_SLEEP_TIME = 19;
+
+type NotificationTime = { hours: number; minutes: number };
+type Notification = "none" | "info" | "warning";
+
+const getNotification = (activity: ActivityDTO): Notification => {
+  const definedRules = notificationSettings[activity.category];
+
+  if (!definedRules) {
+    return "none";
+  }
+
+  const { elapsedHours, elapsedMinutes } = getElapsedTime(
+    activity.endTime ?? activity.startTime
+  );
+
+  if (
+    elapsedHours + 1 > definedRules.warning.hours &&
+    elapsedMinutes > definedRules.warning.minutes
+  ) {
+    return "warning";
+  }
+
+  if (
+    elapsedHours + 1 > definedRules.info.hours &&
+    elapsedMinutes > definedRules.info.minutes
+  ) {
+    return "info";
+  }
+
+  return "none";
 };
 
 // TODO share
