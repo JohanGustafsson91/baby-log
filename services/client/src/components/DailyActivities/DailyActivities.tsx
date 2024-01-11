@@ -153,7 +153,7 @@ export const DailyActivities = () => {
     new Date().getHours() >= NIGHT_SLEEP_TIME
   );
 
-  const notifications = showNotifications
+  const notificationsForActivities = showNotifications
     ? Object.values(
         sortedActivities
           .filter((a) => isSameDate(a.startTime, new Date()))
@@ -168,7 +168,7 @@ export const DailyActivities = () => {
         return {
           id: latestActivity.id,
           category: latestActivity.category,
-          hint: getNotification(latestActivity),
+          notification: getNotification(latestActivity),
         };
       })
     : [];
@@ -216,9 +216,9 @@ export const DailyActivities = () => {
                   onDeleted={onDeletedActivity}
                   onUpdated={onUpdatedActivity}
                   notification={
-                    notifications.find(
+                    notificationsForActivities.find(
                       (notification) => notification.id === activity.id
-                    )?.hint
+                    )?.notification
                   }
                 />
               ))
