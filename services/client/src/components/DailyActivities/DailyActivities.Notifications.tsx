@@ -1,0 +1,187 @@
+import { getElapsedTime, isSameDate } from "@/shared/dateUtils";
+import { ActivityDTO } from "baby-log-api";
+import { useEffect, useMemo, useState } from "react";
+
+export const useNotifications = (sortedActivities: ActivityDTO[]) => {
+  const [displayed, setDisplayed] = useState<ActivityDTO["id"][]>([]);
+
+  const showNotifications = !(
+    new Date().getHours() >= NIGHT_SLEEP_START_TIME &&
+    sortedActivities[0]?.category === "sleep"
+  );
+
+  const notificationsForActivities = useMemo(
+    () =>
+      showNotifications
+        ? Object.values(
+            sortedActivities
+              .filter((a) => isSameDate(a.startTime, new Date()))
+              .reduceRight((acc, curr) => {
+                const category = curr.category.replace("-dirty", "");
+                return {
+                  ...acc,
+                  [category]: { ...curr, category },
+                };
+              }, {} as Record<ActivityDTO["category"], ActivityDTO>)
+          ).map((latestActivity) => {
+            return {
+              id: latestActivity.id,
+              category: latestActivity.category,
+              notification: getNotification(latestActivity),
+            };
+          })
+        : [],
+    [sortedActivities, showNotifications]
+  );
+
+  useEffect(() => {
+    notificationsForActivities.forEach((notification) => {
+      if (notification && !displayed.includes(notification.id)) {
+        try {
+          displayWebNotification(notification);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setDisplayed((prev) => [...prev, notification.id]);
+        }
+      }
+    });
+  }, [displayed, notificationsForActivities]);
+
+  return notificationsForActivities;
+};
+
+const displayWebNotification = ({ notification }: ActivityWithNotification) => {
+  const { message } = notification;
+
+  if (!message) {
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    new Notification(message.title, { body: message.body });
+  } else if (Notification.permission !== "denied") {
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        new Notification(message.title, { body: message.body });
+      }
+    });
+  }
+};
+
+const notificationSettings: Record<
+  ActivityDTO["category"],
+  { info: NotificationData; warning: NotificationData } | undefined
+> = {
+  sleep: {
+    info: {
+      hours: 3,
+      minutes: 0,
+      message: { title: "Sova", body: "Börjar bli trött" },
+    },
+    warning: {
+      hours: 4,
+      minutes: 0,
+      message: { title: "Sova", body: "Är trött" },
+    },
+  },
+  food: {
+    info: {
+      hours: 2,
+      minutes: 0,
+      message: { title: "Äta", body: "Börjar bli hungrig" },
+    },
+    warning: {
+      hours: 3,
+      minutes: 0,
+      message: { title: "Äta", body: "Är hungrig" },
+    },
+  },
+  "diaper-change": {
+    info: {
+      hours: 2,
+      minutes: 30,
+      message: { title: "Byta blöja", body: "Börjar bli smutsig" },
+    },
+    warning: {
+      hours: 4,
+      minutes: 0,
+      message: { title: "Byta blöja", body: "Är smutsig" },
+    },
+  },
+  "diaper-change-dirty": undefined,
+  "health-check": undefined,
+  bath: undefined,
+  hygiene: undefined,
+  other: undefined,
+};
+
+const NIGHT_SLEEP_START_TIME = 19;
+
+type NotificationData = {
+  hours: number;
+  minutes: number;
+  message: { title: string; body: string };
+};
+
+interface ActivityWithNotification {
+  id: number;
+  category: ActivityDTO["category"];
+  notification: Notification;
+}
+
+export type Notification =
+  | {
+      type: "none";
+      message: undefined;
+    }
+  | { type: "info"; message: NotificationData["message"] }
+  | { type: "warning"; message: NotificationData["message"] };
+
+const getNotification = (activity: ActivityDTO): Notification => {
+  const rules = notificationSettings[activity.category];
+
+  if (!rules) {
+    return {
+      type: "none",
+      message: undefined,
+    };
+  }
+
+  const { elapsedHours, elapsedMinutes } = getElapsedTime(
+    activity.endTime || activity.startTime
+  );
+
+  const potentialNotification = [
+    isBeyondThreshold({
+      elapsedHours,
+      elapsedMinutes,
+      rules: rules.warning,
+    }) && { type: "warning", message: rules.warning.message },
+    isBeyondThreshold({
+      elapsedHours,
+      elapsedMinutes,
+      rules: rules.info,
+    }) && { type: "info", message: rules.info.message },
+    {
+      type: "none",
+      message: undefined,
+    },
+  ];
+
+  return potentialNotification.find(Boolean) as Notification;
+};
+
+const isBeyondThreshold = ({
+  elapsedHours,
+  elapsedMinutes,
+  rules,
+}: {
+  elapsedHours: number;
+  elapsedMinutes: number;
+  rules: NotificationData;
+}) =>
+  elapsedHours + HOURS_THRESHOLD > rules.hours &&
+  elapsedMinutes > rules.minutes;
+
+const HOURS_THRESHOLD = 1;

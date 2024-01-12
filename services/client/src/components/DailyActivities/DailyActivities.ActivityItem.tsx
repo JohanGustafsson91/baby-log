@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useAsync } from "@/shared/useAsync";
 import { useSettings } from "../App/App.SettingsProvider";
 import { ActivityForm } from "./DailyActivities.ActivityForm";
+import { Notification } from "./DailyActivities.Notifications";
 
 export const ActivityItem = ({
   activity,
@@ -89,7 +90,7 @@ export const ActivityItem = ({
           <div className={styles.activityItemTimeAndCircle}>
             <div
               className={`${styles.activityItemTimeCircle} ${
-                styles[`activityItemTimeCircle-${notification ?? "none"}`]
+                styles[`activityItemTimeCircle-${notification?.type ?? "none"}`]
               }`}
             >
               {categoriesDisplayTextMap[category].icon}
@@ -153,5 +154,5 @@ interface Props {
   activity: ActivityDTO;
   onDeleted: (id: ActivityDTO["id"]) => void;
   onUpdated: (a: ActivityDTO) => void;
-  notification?: "none" | "info" | "warning";
+  notification?: Notification;
 }

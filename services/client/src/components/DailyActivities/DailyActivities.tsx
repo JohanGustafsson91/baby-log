@@ -3,17 +3,12 @@ import { useEffect, useState } from "react";
 import { useAsync } from "@/shared/useAsync";
 import { ActivityDTO } from "baby-log-api";
 import { ActivityForm } from "./DailyActivities.ActivityForm";
-import {
-  formatDate,
-  getElapsedTime,
-  isDateInFuture,
-  isSameDate,
-  isValidDate,
-} from "@/shared/dateUtils";
+import { formatDate, isDateInFuture, isValidDate } from "@/shared/dateUtils";
 import { Header } from "../Header/Header";
 import { IconButton } from "../Button/Button.IconButton";
 import { useSettings } from "../App/App.SettingsProvider";
 import { ActivityItem } from "./DailyActivities.ActivityItem";
+import { useNotifications } from "./DailyActivities.Notifications";
 
 export const DailyActivities = () => {
   const { query, push: navigate, pathname } = useRouter();
@@ -28,6 +23,19 @@ export const DailyActivities = () => {
     executeAsync,
     updateData: updateActivities,
   } = useAsync<ActivityDTO[]>();
+
+  const sortedActivities = [...activities]
+    .map((activity) => ({
+      ...activity,
+      startTime: new Date(activity.startTime),
+      endTime: activity.endTime ? new Date(activity.endTime) : activity.endTime,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+    );
+
+  const notificationsForActivities = useNotifications(sortedActivities);
 
   useEffect(
     function reRenderViewEveryMinute() {
@@ -137,42 +145,6 @@ export const DailyActivities = () => {
     return null;
   }
 
-  const sortedActivities = [...activities]
-    .map((activity) => ({
-      ...activity,
-      startTime: new Date(activity.startTime),
-      endTime: activity.endTime ? new Date(activity.endTime) : activity.endTime,
-    }))
-    .sort(
-      (a, b) =>
-        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
-    );
-
-  const showNotifications = !(
-    new Date().getHours() >= NIGHT_SLEEP_START_TIME &&
-    sortedActivities[0]?.category === "sleep"
-  );
-
-  const notificationsForActivities = showNotifications
-    ? Object.values(
-        sortedActivities
-          .filter((a) => isSameDate(a.startTime, new Date()))
-          .reduceRight((acc, curr) => {
-            const category = curr.category.replace("-dirty", "");
-            return {
-              ...acc,
-              [category]: { ...curr, category },
-            };
-          }, {} as Record<ActivityDTO["category"], ActivityDTO>)
-      ).map((latestActivity) => {
-        return {
-          id: latestActivity.id,
-          category: latestActivity.category,
-          notification: getNotification(latestActivity),
-        };
-      })
-    : [];
-
   return (
     <>
       <Header
@@ -241,64 +213,7 @@ export const DailyActivities = () => {
   );
 };
 
-const notificationSettings: Record<
-  ActivityDTO["category"],
-  { info: NotificationTime; warning: NotificationTime } | undefined
-> = {
-  sleep: { info: { hours: 3, minutes: 0 }, warning: { hours: 4, minutes: 0 } },
-  food: { info: { hours: 2, minutes: 0 }, warning: { hours: 3, minutes: 0 } },
-  "diaper-change": {
-    info: { hours: 2, minutes: 30 },
-    warning: { hours: 4, minutes: 0 },
-  },
-  "diaper-change-dirty": undefined,
-  "health-check": undefined,
-  bath: undefined,
-  hygiene: undefined,
-  other: undefined,
-};
-
 const ONE_MINUTE = 60000;
-const NIGHT_SLEEP_START_TIME = 19;
-
-type NotificationTime = { hours: number; minutes: number };
-type Notification = "none" | "info" | "warning";
-
-const getNotification = (activity: ActivityDTO): Notification => {
-  const rules = notificationSettings[activity.category];
-
-  if (!rules) {
-    return "none";
-  }
-
-  const { elapsedHours, elapsedMinutes } = getElapsedTime(
-    activity.endTime ?? activity.startTime
-  );
-
-  return [
-    isBeyondThreshold({
-      elapsedHours,
-      elapsedMinutes,
-      rules: rules.warning,
-    }) && "warning",
-    isBeyondThreshold({
-      elapsedHours,
-      elapsedMinutes,
-      rules: rules.info,
-    }) && "info",
-    "none",
-  ].find(Boolean) as Notification;
-};
-
-const isBeyondThreshold = ({
-  elapsedHours,
-  elapsedMinutes,
-  rules,
-}: {
-  elapsedHours: number;
-  elapsedMinutes: number;
-  rules: NotificationTime;
-}) => elapsedHours + 1 > rules.hours && elapsedMinutes > rules.minutes;
 
 // TODO share
 export const ensureArray = (input: string | string[] | undefined): string[] => {
