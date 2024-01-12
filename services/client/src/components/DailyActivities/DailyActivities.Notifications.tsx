@@ -1,33 +1,72 @@
 import { getElapsedTime, isSameDate } from "@/shared/dateUtils";
 import { ActivityDTO } from "baby-log-api";
+import { useEffect, useMemo, useState } from "react";
 
 export const useNotifications = (sortedActivities: ActivityDTO[]) => {
+  const [displayed, setDisplayed] = useState<ActivityDTO["id"][]>([]);
+
   const showNotifications = !(
     new Date().getHours() >= NIGHT_SLEEP_START_TIME &&
     sortedActivities[0]?.category === "sleep"
   );
 
-  const notificationsForActivities = showNotifications
-    ? Object.values(
-        sortedActivities
-          .filter((a) => isSameDate(a.startTime, new Date()))
-          .reduceRight((acc, curr) => {
-            const category = curr.category.replace("-dirty", "");
+  const notificationsForActivities = useMemo(
+    () =>
+      showNotifications
+        ? Object.values(
+            sortedActivities
+              .filter((a) => isSameDate(a.startTime, new Date()))
+              .reduceRight((acc, curr) => {
+                const category = curr.category.replace("-dirty", "");
+                return {
+                  ...acc,
+                  [category]: { ...curr, category },
+                };
+              }, {} as Record<ActivityDTO["category"], ActivityDTO>)
+          ).map((latestActivity) => {
             return {
-              ...acc,
-              [category]: { ...curr, category },
+              id: latestActivity.id,
+              category: latestActivity.category,
+              notification: getNotification(latestActivity),
             };
-          }, {} as Record<ActivityDTO["category"], ActivityDTO>)
-      ).map((latestActivity) => {
-        return {
-          id: latestActivity.id,
-          category: latestActivity.category,
-          notification: getNotification(latestActivity),
-        };
-      })
-    : [];
+          })
+        : [],
+    [sortedActivities, showNotifications]
+  );
+
+  useEffect(() => {
+    notificationsForActivities.forEach((notification) => {
+      if (notification && !displayed.includes(notification.id)) {
+        try {
+          displayWebNotification(notification);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setDisplayed((prev) => [...prev, notification.id]);
+        }
+      }
+    });
+  }, [displayed, notificationsForActivities]);
 
   return notificationsForActivities;
+};
+
+const displayWebNotification = ({ notification }: ActivityWithNotification) => {
+  const { message } = notification;
+
+  if (!message) {
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    new Notification(message.title, { body: message.body });
+  } else if (Notification.permission !== "denied") {
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        new Notification(message.title, { body: message.body });
+      }
+    });
+  }
 };
 
 const notificationSettings: Record<
@@ -35,16 +74,40 @@ const notificationSettings: Record<
   { info: NotificationData; warning: NotificationData } | undefined
 > = {
   sleep: {
-    info: { hours: 3, minutes: 0, message: { title: "", body: "" } },
-    warning: { hours: 4, minutes: 0, message: { title: "", body: "" } },
+    info: {
+      hours: 3,
+      minutes: 0,
+      message: { title: "Sova", body: "Börjar bli trött" },
+    },
+    warning: {
+      hours: 4,
+      minutes: 0,
+      message: { title: "Sova", body: "Är trött" },
+    },
   },
   food: {
-    info: { hours: 2, minutes: 0, message: { title: "", body: "" } },
-    warning: { hours: 3, minutes: 0, message: { title: "", body: "" } },
+    info: {
+      hours: 2,
+      minutes: 0,
+      message: { title: "Äta", body: "Börjar bli hungrig" },
+    },
+    warning: {
+      hours: 3,
+      minutes: 0,
+      message: { title: "Äta", body: "Är hungrig" },
+    },
   },
   "diaper-change": {
-    info: { hours: 2, minutes: 30, message: { title: "", body: "" } },
-    warning: { hours: 4, minutes: 0, message: { title: "", body: "" } },
+    info: {
+      hours: 2,
+      minutes: 30,
+      message: { title: "Byta blöja", body: "Börjar bli smutsig" },
+    },
+    warning: {
+      hours: 4,
+      minutes: 0,
+      message: { title: "Byta blöja", body: "Är smutsig" },
+    },
   },
   "diaper-change-dirty": undefined,
   "health-check": undefined,
@@ -60,6 +123,12 @@ type NotificationData = {
   minutes: number;
   message: { title: string; body: string };
 };
+
+interface ActivityWithNotification {
+  id: number;
+  category: ActivityDTO["category"];
+  notification: Notification;
+}
 
 export type Notification =
   | {
@@ -80,10 +149,10 @@ const getNotification = (activity: ActivityDTO): Notification => {
   }
 
   const { elapsedHours, elapsedMinutes } = getElapsedTime(
-    activity.endTime ?? activity.startTime
+    activity.endTime || activity.startTime
   );
 
-  return [
+  const potentialNotification = [
     isBeyondThreshold({
       elapsedHours,
       elapsedMinutes,
@@ -98,7 +167,9 @@ const getNotification = (activity: ActivityDTO): Notification => {
       type: "none",
       message: undefined,
     },
-  ].find(Boolean) as Notification;
+  ];
+
+  return potentialNotification.find(Boolean) as Notification;
 };
 
 const isBeyondThreshold = ({
@@ -109,4 +180,8 @@ const isBeyondThreshold = ({
   elapsedHours: number;
   elapsedMinutes: number;
   rules: NotificationData;
-}) => elapsedHours + 1 > rules.hours && elapsedMinutes > rules.minutes;
+}) =>
+  elapsedHours + HOURS_THRESHOLD > rules.hours &&
+  elapsedMinutes > rules.minutes;
+
+const HOURS_THRESHOLD = 1;
