@@ -69,45 +69,71 @@ const displayWebNotification = ({ notification }: ActivityWithNotification) => {
   }
 };
 
-const notificationSettings: Record<
+type ActivityNotificationSettings = Record<
   ActivityDTO["category"],
-  { info: NotificationData; warning: NotificationData } | undefined
-> = {
+  | {
+      timeSince: Array<{
+        timeThreshold: TimeThreshold;
+        type: "info" | "warning";
+        message: NotificationMessage;
+      }>;
+    }
+  | undefined
+>;
+
+interface TimeThreshold {
+  days?: number;
+  hours?: number;
+  minutes: number;
+}
+
+interface NotificationMessage {
+  title: string;
+  body?: string;
+}
+
+const activityNotificationSettings: ActivityNotificationSettings = {
   sleep: {
-    info: {
-      hours: 2,
-      minutes: 59,
-      message: { title: "Sova", body: "Börjar bli trött" },
-    },
-    warning: {
-      hours: 3,
-      minutes: 59,
-      message: { title: "Sova", body: "Är trött" },
-    },
+    timeSince: [
+      {
+        type: "warning",
+        timeThreshold: { hours: 3, minutes: 59 },
+        message: { title: "Sova", body: "Är trött" },
+      },
+      {
+        type: "info",
+        timeThreshold: { hours: 2, minutes: 59 },
+        message: { title: "Sova", body: "Börjar bli trött" },
+      },
+    ],
   },
   food: {
-    info: {
-      hours: 1,
-      minutes: 59,
-      message: { title: "Äta", body: "Börjar bli hungrig" },
-    },
-    warning: {
-      hours: 2,
-      minutes: 59,
-      message: { title: "Äta", body: "Är hungrig" },
-    },
+    timeSince: [
+      {
+        type: "warning",
+        timeThreshold: { hours: 2, minutes: 59 },
+        message: { title: "Äta", body: "Är hungrig" },
+      },
+      {
+        type: "info",
+        timeThreshold: { hours: 1, minutes: 59 },
+        message: { title: "Äta", body: "Börjar bli hungrig" },
+      },
+    ],
   },
   "diaper-change": {
-    info: {
-      hours: 2,
-      minutes: 29,
-      message: { title: "Byta blöja", body: "Börjar bli smutsig" },
-    },
-    warning: {
-      hours: 3,
-      minutes: 59,
-      message: { title: "Byta blöja", body: "Är smutsig" },
-    },
+    timeSince: [
+      {
+        type: "warning",
+        timeThreshold: { hours: 3, minutes: 59 },
+        message: { title: "Blöja", body: "Är smutsig" },
+      },
+      {
+        type: "info",
+        timeThreshold: { hours: 2, minutes: 29 },
+        message: { title: "Blöja", body: "Börjar bli smutsig" },
+      },
+    ],
   },
   "diaper-change-dirty": undefined,
   "health-check": undefined,
@@ -117,12 +143,6 @@ const notificationSettings: Record<
 };
 
 const NIGHT_SLEEP_START_TIME = 19;
-
-type NotificationData = {
-  hours: number;
-  minutes: number;
-  message: { title: string; body: string };
-};
 
 interface ActivityWithNotification {
   id: number;
@@ -135,48 +155,45 @@ export type Notification =
       type: "none";
       message: undefined;
     }
-  | { type: "info"; message: NotificationData["message"] }
-  | { type: "warning"; message: NotificationData["message"] };
+  | { type: "info"; message: NotificationMessage }
+  | { type: "warning"; message: NotificationMessage };
 
 const getNotification = (activity: ActivityDTO): Notification => {
-  const rules = notificationSettings[activity.category];
+  const rules = activityNotificationSettings[activity.category];
 
-  if (!rules) {
-    return {
-      type: "none",
-      message: undefined,
-    };
-  }
-
-  const potentialNotification = [
-    isElapsedTimeExceedingThreshold(activity.endTime || activity.startTime, {
-      hours: rules.warning.hours,
-      minutes: rules.warning.minutes,
-    }) && { type: "warning", message: rules.warning.message },
-    isElapsedTimeExceedingThreshold(activity.endTime || activity.startTime, {
-      hours: rules.info.hours,
-      minutes: rules.info.minutes,
-    }) && { type: "info", message: rules.info.message },
+  return [
+    ...(rules?.timeSince ?? []).map(
+      ({ timeThreshold, type, message }) =>
+        isElapsedTimeExceedingThreshold({
+          date: activity.endTime || activity.startTime,
+          timeThreshold,
+        }) && {
+          type,
+          message,
+        }
+    ),
     {
       type: "none",
       message: undefined,
     },
-  ];
-
-  return potentialNotification.find(Boolean) as Notification;
+  ].find(Boolean) as Notification;
 };
 
-export const isElapsedTimeExceedingThreshold = (
-  date: Date,
-  threshold: { days?: number; hours?: number; minutes?: number },
-  now = new Date()
-) => {
+export const isElapsedTimeExceedingThreshold = ({
+  date,
+  timeThreshold,
+  now = new Date(),
+}: {
+  date: Date;
+  timeThreshold: TimeThreshold;
+  now?: Date;
+}) => {
   const elapsedMilliseconds = now.getTime() - date.getTime();
   const elapsedMinutes = Math.floor(elapsedMilliseconds / (1000 * 60));
 
   const thresholdMinutes =
-    (threshold.days || 0) * 24 * 60 +
-    (threshold.hours || 0) * 60 +
-    (threshold.minutes || 0);
+    (timeThreshold.days || 0) * 24 * 60 +
+    (timeThreshold.hours || 0) * 60 +
+    (timeThreshold.minutes || 0);
   return elapsedMinutes > thresholdMinutes;
 };
