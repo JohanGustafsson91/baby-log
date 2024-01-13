@@ -77,7 +77,7 @@ export const ActivityItem = ({
   }
 
   const totalTimeText = activity.endTime
-    ? getElapsedTime(activity.startTime, activity.endTime).text
+    ? getElapsedTime(activity.startTime, activity.endTime)
     : "";
 
   const detailsText =
@@ -125,14 +125,14 @@ export const ActivityItem = ({
                 ) : null}
                 {endTime && category === "sleep" ? (
                   <span className={styles.activityDetails}>
-                    Vaknade för {getElapsedTime(endTime).text} sedan.
+                    Vaknade för {getElapsedTime(endTime)} sedan.
                   </span>
                 ) : null}
               </div>
             </div>
 
             <span className={styles.activityElapsedTime}>
-              {getElapsedTime(startTime).text}
+              {getElapsedTime(startTime)}
             </span>
           </div>
         </div>
