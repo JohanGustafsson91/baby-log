@@ -1,4 +1,4 @@
-import { getElapsedTime, isSameDate } from "@/shared/dateUtils";
+import { isSameDate } from "@/shared/dateUtils";
 import { ActivityDTO } from "baby-log-api";
 import { useEffect, useMemo, useState } from "react";
 
@@ -75,37 +75,37 @@ const notificationSettings: Record<
 > = {
   sleep: {
     info: {
-      hours: 3,
-      minutes: 0,
+      hours: 2,
+      minutes: 59,
       message: { title: "Sova", body: "Börjar bli trött" },
     },
     warning: {
-      hours: 4,
-      minutes: 0,
+      hours: 3,
+      minutes: 59,
       message: { title: "Sova", body: "Är trött" },
     },
   },
   food: {
     info: {
-      hours: 2,
-      minutes: 0,
+      hours: 1,
+      minutes: 59,
       message: { title: "Äta", body: "Börjar bli hungrig" },
     },
     warning: {
-      hours: 3,
-      minutes: 0,
+      hours: 2,
+      minutes: 59,
       message: { title: "Äta", body: "Är hungrig" },
     },
   },
   "diaper-change": {
     info: {
       hours: 2,
-      minutes: 30,
+      minutes: 29,
       message: { title: "Byta blöja", body: "Börjar bli smutsig" },
     },
     warning: {
-      hours: 4,
-      minutes: 0,
+      hours: 3,
+      minutes: 59,
       message: { title: "Byta blöja", body: "Är smutsig" },
     },
   },
@@ -148,20 +148,14 @@ const getNotification = (activity: ActivityDTO): Notification => {
     };
   }
 
-  const { elapsedHours, elapsedMinutes } = getElapsedTime(
-    activity.endTime || activity.startTime
-  );
-
   const potentialNotification = [
-    isBeyondThreshold({
-      elapsedHours,
-      elapsedMinutes,
-      rules: rules.warning,
+    isElapsedTimeExceedingThreshold(activity.endTime || activity.startTime, {
+      hours: rules.warning.hours,
+      minutes: rules.warning.minutes,
     }) && { type: "warning", message: rules.warning.message },
-    isBeyondThreshold({
-      elapsedHours,
-      elapsedMinutes,
-      rules: rules.info,
+    isElapsedTimeExceedingThreshold(activity.endTime || activity.startTime, {
+      hours: rules.info.hours,
+      minutes: rules.info.minutes,
     }) && { type: "info", message: rules.info.message },
     {
       type: "none",
@@ -172,16 +166,17 @@ const getNotification = (activity: ActivityDTO): Notification => {
   return potentialNotification.find(Boolean) as Notification;
 };
 
-const isBeyondThreshold = ({
-  elapsedHours,
-  elapsedMinutes,
-  rules,
-}: {
-  elapsedHours: number;
-  elapsedMinutes: number;
-  rules: NotificationData;
-}) =>
-  elapsedHours + HOURS_THRESHOLD > rules.hours &&
-  elapsedMinutes > rules.minutes;
+export const isElapsedTimeExceedingThreshold = (
+  date: Date,
+  threshold: { days?: number; hours?: number; minutes?: number },
+  now = new Date()
+) => {
+  const elapsedMilliseconds = now.getTime() - date.getTime();
+  const elapsedMinutes = Math.floor(elapsedMilliseconds / (1000 * 60));
 
-const HOURS_THRESHOLD = 1;
+  const thresholdMinutes =
+    (threshold.days || 0) * 24 * 60 +
+    (threshold.hours || 0) * 60 +
+    (threshold.minutes || 0);
+  return elapsedMinutes > thresholdMinutes;
+};
